@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, FloatField, FileField
 from wtforms.validators import DataRequired, Email, EqualTo, ValidationError
 from app.models import User
 
@@ -25,3 +25,11 @@ class LoginForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
     remember_me = BooleanField('Remember Me')
     submit = SubmitField('Login')
+
+class UploadSurveyForm(FlaskForm):
+    title = StringField('Survey Title', validators=[DataRequired()])
+    description = TextAreaField('Description', validators=[DataRequired()])
+    terms_and_conditions = TextAreaField('Terms and Conditions', validators=[DataRequired()])
+    total_payout = FloatField('Total Payout', validators=[DataRequired()])
+    csv_file = FileField('Survey Questions CSV', validators=[DataRequired()])
+    submit = SubmitField('Upload Survey')

@@ -1,0 +1,23 @@
+<!-- templates/take_survey.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+<h2>{{ survey.title }}</h2>
+<p>{{ question.question_text }}</p>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+        {{ form.answer.label }}
+        {{ form.answer(class="form-control") }}
+        {% if form.answer.errors %}
+        <ul class="form-errors">
+            {% for error in form.answer.errors %}
+            <li>{{ error }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+    {{ form.submit(class="btn btn-primary", value="Next") }}
+</form>
+{% endblock %}
