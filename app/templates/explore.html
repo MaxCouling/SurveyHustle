@@ -1,6 +1,28 @@
+<!-- templates/explore.html -->
+
 {% extends 'base.html' %}
-{% block title %}Explore{% endblock %}
+
+{% block title %}Explore Surveys{% endblock %}
+
 {% block content %}
-<h2>Explore</h2>
-<p>This is the Explore page.</p>
+<h2>Explore Surveys</h2>
+
+{% if surveys %}
+    <div class="survey-list">
+        {% for survey in surveys %}
+            <div class="survey-item card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">{{ survey.title }}</h5>
+                    <p class="card-text">{{ survey.description }}</p>
+                    <p class="card-text">
+                        <small class="text-muted">Payout: ${{ "%.2f"|format(survey.total_payout) }}</small>
+                    </p>
+                    <a href="{{ url_for('take_survey', survey_id=survey.id) }}" class="btn btn-primary">Take Survey</a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <p>No surveys available at the moment. Please check back later!</p>
+{% endif %}
 {% endblock %}
