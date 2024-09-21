@@ -5,8 +5,33 @@
     <title>Survey Hustle - {% block title %}{% endblock %}</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <!-- Custom Styles -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <!-- No styles.css, so we'll include styles here -->
+    <style>
+        body {
+            margin-bottom: 80px; /* Increased space for the fixed navbar */
+        }
+        .navbar-bottom {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 80px; /* Increased height */
+            z-index: 1030;
+            background-color: #343a40; /* Ensure background color covers entire navbar */
+        }
+        .navbar-bottom .nav-item .nav-link {
+            color: #fff;
+            text-align: center;
+            padding-top: 8px; /* Adjusted padding */
+            font-size: 14px;  /* Increased font size */
+        }
+        .navbar-bottom .nav-item .nav-link .bi {
+            display: block;
+            font-size: 28px; /* Increased icon size */
+        }
+    </style>
 </head>
 <body>
     {% include 'navbar.html' %}
@@ -23,6 +48,7 @@
         {% endwith %}
         {% block content %}{% endblock %}
     </div>
+    {% include 'bottom_navbar.html' %}
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

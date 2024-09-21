@@ -11,12 +11,14 @@ def index():
 
 #from forms import RegistrationForm
 
+# routes.py
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
         return redirect(url_for('dashboard'))
     form = RegistrationForm()
     if form.validate_on_submit():
+        print("Form validated successfully")
         user = User(
             username=form.username.data,
             email=form.email.data,
@@ -25,9 +27,14 @@ def register():
         )
         db.session.add(user)
         db.session.commit()
+        print("User added to the database")
         flash('Registration successful! Please log in.', 'success')
         return redirect(url_for('login'))
+    else:
+        print("Form validation failed")
+        print(form.errors)
     return render_template('register.html', form=form)
+
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -52,6 +59,28 @@ def logout():
     return redirect(url_for('index'))
 
 @app.route('/dashboard')
-@login_required
+#@login_required
 def dashboard():
-    return render_template('dashboard.html')
+    return render_template('dashboard.html', user = current_user)
+
+@app.route('/explore')
+#@login_required
+def explore():
+    return render_template('explore.html')
+
+@app.route('/profile')
+#@login_required
+def profile():
+    return render_template('profile.html')
+
+@app.route('/survey')
+#@login_required
+def survey():
+    return render_template('survey.html')
+
+@app.route('/settings')
+#@login_required
+def settings():
+    return render_template('settings.html')
+
+
