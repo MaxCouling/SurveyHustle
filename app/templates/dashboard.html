@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h2>Welcome, {{ user.username }}!</h2>
+{% if user.is_business %}
+    <h3>Business Dashboard</h3>
+    <p>This content is visible only to business users.</p>
+    <!-- Business-specific content goes here -->
+{% else %}
+    <h3>User Dashboard</h3>
+    <p>This content is visible to regular users.</p>
+    <!-- User-specific content goes here -->
+{% endif %}
+{% endblock %}
