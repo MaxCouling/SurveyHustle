@@ -2,6 +2,6 @@ git init
 echo venv/ > .gitignore
 echo __pycache__/ >> .gitignore
 echo *.pyc >> .gitignore
-echo .db >> .gitignore
+app.db
 .idea
-echo .env >> .gitignore
+.env
