@@ -178,6 +178,7 @@ def start_survey(survey_id):
 def take_survey(survey_id):
     survey = Survey.query.get_or_404(survey_id)
     progress = UserSurveyProgress.query.filter_by(user_id=current_user.id, survey_id=survey.id).first()
+
     if not progress or progress.completed:
         flash('Survey not found or already completed.', 'danger')
         return redirect(url_for('explore'))
@@ -192,17 +193,24 @@ def take_survey(survey_id):
         return redirect(url_for('dashboard'))
 
     question = questions[progress.current_question_index]
+    print(f"Displaying question {progress.current_question_index + 1}: {question.question_text}")
+    print(question.question_type)
 
     class DynamicSurveyForm(FlaskForm):
         pass
-    print(question.question_type)
+
     if question.question_type == 'multiple_choice':
-        choices = json.loads(question.choices)
+        try:
+            choices = json.loads(question.choices)
+        except json.JSONDecodeError:
+            flash('Invalid choices format for multiple choice question.', 'danger')
+            return redirect(url_for('dashboard'))
         setattr(DynamicSurveyForm, 'answer', RadioField(
             question.question_text,
             choices=[(choice, choice) for choice in choices],
             validators=[DataRequired()]
         ))
+
     elif question.question_type == 'text':
         setattr(DynamicSurveyForm, 'answer', StringField(
             question.question_text, validators=[DataRequired()]
@@ -227,7 +235,7 @@ def take_survey(survey_id):
         # Save the response
         response = Response(
             user_id=current_user.id,
-            #survey_id=survey.id,
+            #survey_id=survey.id,  # Ensure survey_id is included
             question_id=question.id,
             answer=answer
         )
@@ -244,5 +252,14 @@ def take_survey(survey_id):
         db.session.commit()
         print("Progress committed to the database.")
 
-    # Pass 'progress' and 'total_questions' to the template
-    return render_template('take_survey.html', form=form, question=question, survey=survey, progress=progress, total_questions=total_questions)
+        # Redirect to the same route to load the next question
+        return redirect(url_for('take_survey', survey_id=survey.id))
+
+    else:
+        if request.method == 'POST':
+            print("Form validation failed.")
+            print("Form errors:", form.errors)
+
+    return render_template('take_survey.html', form=form, question=question, survey=survey, progress=progress,
+                           total_questions=total_questions)
+
