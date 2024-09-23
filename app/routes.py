@@ -171,6 +171,8 @@ def start_survey(survey_id):
                 return redirect(url_for('explore'))
         return render_template('survey_terms.html', survey=survey)
 
+# routes.py
+
 @app.route('/take_survey/<int:survey_id>', methods=['GET', 'POST'])
 @login_required
 def take_survey(survey_id):
@@ -181,7 +183,9 @@ def take_survey(survey_id):
         return redirect(url_for('explore'))
 
     questions = survey.questions.order_by(Question.order).all()
-    if progress.current_question_index >= len(questions):
+    total_questions = len(questions)
+
+    if progress.current_question_index >= total_questions:
         progress.completed = True
         db.session.commit()
         flash('Survey completed! Thank you.', 'success')
@@ -189,52 +193,7 @@ def take_survey(survey_id):
 
     question = questions[progress.current_question_index]
 
-    # Dynamic form generation
-    class DynamicSurveyForm(FlaskForm):
-        pass
+    # [Existing dynamic form generation code]
 
-    if question.question_type == 'multiple_choice':
-        choices = json.loads(question.choices)
-        setattr(DynamicSurveyForm, 'answer', RadioField(
-            question.question_text,
-            choices=[(choice, choice) for choice in choices],
-            validators=[DataRequired()]
-        ))
-    elif question.question_type == 'short_answer':
-        setattr(DynamicSurveyForm, 'answer', StringField(
-            question.question_text, validators=[DataRequired()]
-        ))
-    elif question.question_type == 'long_answer':
-        setattr(DynamicSurveyForm, 'answer', TextAreaField(
-            question.question_text, validators=[DataRequired()]
-        ))
-    elif question.question_type == 'rating':
-        setattr(DynamicSurveyForm, 'answer', IntegerField(
-            question.question_text,
-            validators=[DataRequired(), NumberRange(min=1, max=10)]
-        ))
-    else:
-        flash('Unknown question type.', 'danger')
-        return redirect(url_for('dashboard'))
-
-    form = DynamicSurveyForm()
-
-    if form.validate_on_submit():
-        response = Response(
-            user_id=current_user.id,
-            question_id=question.id,
-            answer=form.answer.data
-        )
-        db.session.add(response)
-
-        # Update payout
-        total_questions = len(questions)
-        per_question_payout = survey.total_payout / total_questions
-        progress.payout += per_question_payout
-        current_user.total_payout += per_question_payout
-
-        progress.current_question_index += 1
-        db.session.commit()
-        return redirect(url_for('take_survey', survey_id=survey.id))
-
-    return render_template('take_survey.html', form=form, question=question, survey=survey)
+    # Pass 'progress' and 'total_questions' to the template
+    return render_template('take_survey.html', form=form, question=question, survey=survey, progress=progress, total_questions=total_questions)
