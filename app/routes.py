@@ -193,7 +193,56 @@ def take_survey(survey_id):
 
     question = questions[progress.current_question_index]
 
-    # [Existing dynamic form generation code]
+    class DynamicSurveyForm(FlaskForm):
+        pass
+    print(question.question_type)
+    if question.question_type == 'multiple_choice':
+        choices = json.loads(question.choices)
+        setattr(DynamicSurveyForm, 'answer', RadioField(
+            question.question_text,
+            choices=[(choice, choice) for choice in choices],
+            validators=[DataRequired()]
+        ))
+    elif question.question_type == 'text':
+        setattr(DynamicSurveyForm, 'answer', StringField(
+            question.question_text, validators=[DataRequired()]
+        ))
+    elif question.question_type == 'rating':
+        setattr(DynamicSurveyForm, 'answer', IntegerField(
+            question.question_text,
+            validators=[DataRequired(), NumberRange(min=1, max=10)]
+        ))
+    else:
+        flash('Unknown question type.', 'danger')
+        return redirect(url_for('dashboard'))
+
+    form = DynamicSurveyForm()
+
+    if form.validate_on_submit():
+        print("Form validated successfully.")
+        # Retrieve the answer from the form
+        answer = form.answer.data
+        print(f"Received answer: {answer}")
+
+        # Save the response
+        response = Response(
+            user_id=current_user.id,
+            #survey_id=survey.id,
+            question_id=question.id,
+            answer=answer
+        )
+        db.session.add(response)
+        print("Response added to the database.")
+
+        # Update progress
+        progress.current_question_index += 1
+        print(f"Updated current_question_index to {progress.current_question_index}")
+        if progress.current_question_index >= total_questions:
+            progress.completed = True
+            flash('Survey completed! Thank you for your participation.', 'success')
+            print("Survey completed by user.")
+        db.session.commit()
+        print("Progress committed to the database.")
 
     # Pass 'progress' and 'total_questions' to the template
     return render_template('take_survey.html', form=form, question=question, survey=survey, progress=progress, total_questions=total_questions)
