@@ -14,6 +14,7 @@ from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 
+
 from wtforms import StringField, TextAreaField, IntegerField, RadioField
 from wtforms.validators import DataRequired, NumberRange
 
