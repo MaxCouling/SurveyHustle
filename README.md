@@ -52,7 +52,7 @@ cd SurveyHustle
 
   <li>
     <strong>Initialize the Database</strong>
-    <p>During development, each developer will have their own local database. You'll need to create and initialise it before running the application.</p>
+    <p>During development, each developer will have their own local database. You'll need to create and initialise it before running the application. It is a very, very good idea when running locally to delete your database and start a new one when pulling new changes, as database schema is subject to change.</p>
     <p><strong>Create the Database Tables</strong></p>
     <pre><code class="bash">flask shell
 </code></pre>
