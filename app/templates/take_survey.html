@@ -1,0 +1,58 @@
+<!-- templates/take_survey.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}{{ survey.title }} - Question {{ progress.current_question_index + 1 }}{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>{{ survey.title }}</h2>
+    <p>Question {{ progress.current_question_index + 1 }} of {{ total_questions }}</p>
+
+    <form method="POST" action="{{ url_for('take_survey', survey_id=survey.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+
+        <div class="mb-3">
+            {% if form.answer.label %}
+                <label class="form-label">{{ form.answer.label.text }}</label>
+            {% endif %}
+
+            {% if form.answer.type == 'RadioField' %}
+                {% for subfield in form.answer %}
+                    <div class="form-check">
+                        {{ subfield(class="form-check-input", id=subfield.id) }}
+                        <label class="form-check-label" for="{{ subfield.id }}">{{ subfield.label.text }}</label>
+                    </div>
+                {% endfor %}
+
+
+            {% elif form.answer.type == 'IntegerField' %}
+                {{ form.answer(class="form-control") }}
+
+            {% elif form.answer.type == 'StringField' or form.answer.type == 'TextAreaField' %}
+                {{ form.answer(class="form-control") }}
+
+            {% else %}
+                {{ form.answer(class="form-control") }}
+            {% endif %}
+
+            {% if form.answer.errors %}
+                <div class="text-danger">
+                    {% for error in form.answer.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="btn btn-primary">
+            {% if progress.current_question_index + 1 == total_questions %}
+                Submit Survey
+            {% else %}
+                Next
+            {% endif %}
+        </button>
+    </form>
+</div>
+{% endblock %}

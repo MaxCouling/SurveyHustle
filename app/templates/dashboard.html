@@ -5,6 +5,7 @@
 {% if user.is_business %}
     <h3>Business Dashboard</h3>
     <p>This content is visible only to business users.</p>
+    <a href="{{ url_for('upload_survey') }}" class="btn btn-primary">Upload Survey</a>
     <!-- Business-specific content goes here -->
 
 {% else %}
