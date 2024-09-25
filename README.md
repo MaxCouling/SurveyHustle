@@ -15,69 +15,58 @@ Follow these steps to set up the project on your local machine:
 
 ### Steps
 
-1.  **Clone the Repository**
+## 1.  **Clone the Repository**
     
-    Clone the project repository to your local machine using Git:
-    
-        git clone https://github.com/MaxCouling/SurveyHustle
-        cd SurveyHustle
+Clone the project repository to your local machine using Git:
+```bash    
+    git clone https://github.com/MaxCouling/SurveyHustle
+    cd SurveyHustle
+```
         
     
-2.  **Create a Virtual Environment**
+## 2.  **Create a Virtual Environment**
     
-    It's recommended to use a virtual environment to manage project dependencies without affecting your global Python installation.
+It's recommended to use a virtual environment to manage project dependencies without affecting your global Python installation.
+```bash    
+python -m venv venv
+```        
     
-        python -m venv venv
-        
+## 3.  **Activate the Virtual Environment**
     
-3.  **Activate the Virtual Environment**
+On Windows:
+```bash    
+    venv\Scripts\activate
+```        
     
-    On Windows:
+On macOS/Linux:
+```bash    
+    source venv/bin/activate
+```        
     
-        venv\Scripts\activate
-        
+## 4.  **Install Dependencies**
     
-    On macOS/Linux:
+Install all the required Python packages using pip:
+```bash    
+    pip install -r requirements.txt
+```        
     
-        source venv/bin/activate
-        
+## 5.  **Initialize the Database**
     
-4.  **Install Dependencies**
+During development, each developer will have their own local database. You'll need to create and initialise it before running the application. It is a very, very good idea when running locally to delete your database and start a new one when pulling new changes, as database schema is subject to change.
     
-    Install all the required Python packages using pip:
+**Create the Database Tables**
+    ````bash
+    flask shell
+    ```    
     
-        pip install -r requirements.txt
-        
-    
-5.  **Initialize the Database**
-    
-    During development, each developer will have their own local database. You'll need to create and initialise it before running the application. It is a very, very good idea when running locally to delete your database and start a new one when pulling new changes, as database schema is subject to change.
-    
-    **Create the Database Tables**
-    
-        flask shell
-        
-    
-    Inside the Flask shell:
-    
+Inside the Flask shell:
+    ```
         from app import db
         db.create_all()
         exit()
-        
+    ```    
     
-    This will create the necessary tables in your local `app.db` SQLite database.
-    
-6.  **Run the Application**
-    
-    Start the Flask development server:
-    
-        flask run
-        
-    
-    The application will be accessible at [http://localhost:5000](http://localhost:5000).
-    
-
-Sure! Below is the Markdown version of your instructions, formatted with appropriate headings, subheadings, and code blocks for better readability and structure.
+This will create the necessary tables in your local `app.db` SQLite database.
 
 ---
 
