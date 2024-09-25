@@ -85,11 +85,11 @@ Sure! Below is the Markdown version of your instructions, formatted with appropr
 
 Tailwind CSS and DaisyUI are used for styling the application. Follow these steps to set them up:
 
-## 6.1 Install Node.js and npm
+### 6.1 Install Node.js and npm
 
 Tailwind CSS and DaisyUI require Node.js and npm. If you don't have them installed, download and install them from the [Node.js website](https://nodejs.org/).
 
-## 6.2 Initialize npm
+### 6.2 Initialize npm
 
 Initialize npm in your project directory:
 
@@ -99,7 +99,7 @@ npm init -y
 
 This command creates a `package.json` file with default settings.
 
-## 6.3 Install Tailwind CSS and DaisyUI
+### 6.3 Install Tailwind CSS and DaisyUI
 
 Install Tailwind CSS and DaisyUI via npm:
 
@@ -107,7 +107,7 @@ Install Tailwind CSS and DaisyUI via npm:
 npm install tailwindcss daisyui
 ```
 
-## 6.4 Initialize Tailwind CSS Configuration
+### 6.4 Initialize Tailwind CSS Configuration
 
 Generate the `tailwind.config.js` file:
 
@@ -117,7 +117,7 @@ npx tailwindcss init
 
 This command creates a `tailwind.config.js` file in your project directory.
 
-## 6.5 Configure `tailwind.config.js`
+### 6.5 Configure `tailwind.config.js`
 
 Update `tailwind.config.js` to include DaisyUI and specify the content paths:
 
@@ -177,7 +177,7 @@ module.exports = {
 - **Themes:** Lists all the DaisyUI themes you want to use.
 
 
-## 6.6 Build Tailwind CSS
+### 6.6 Build Tailwind CSS
 
 Add a build script to your `package.json`:
 
@@ -199,7 +199,7 @@ Build it!
 npm run build:css
 ```
 
-7.  **Access the Application**
+## 7.  **Access the Application**
     
 Run Flask!
 
