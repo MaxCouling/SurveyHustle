@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="{{ url_for('index') }}">Survey Hustle</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <!-- <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
@@ -22,6 +22,10 @@
                     </li>
                 {% endif %}
             </ul>
-        </div>
+        </div> -->
+        {% if current_user.is_authenticated %}
+        <span class="nav-link">Balance: </span>
+        <button type="button" class="btn btn-success">Balance: ${{ "%.2f" | format(current_user.balance) }}</button>
+        {%endif%}
     </div>
 </nav>

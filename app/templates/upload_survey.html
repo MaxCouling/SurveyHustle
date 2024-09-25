@@ -23,6 +23,10 @@
         {{ form.total_payout(class="form-control") }}
     </div>
     <div class="form-group">
+        {{ form.desired_respondents.label }}
+        {{ form.desired_respondents(class="form-control") }}
+    </div>
+    <div class="form-group">
         {{ form.csv_file.label }}
         {{ form.csv_file(class="form-control-file") }}
     </div>

@@ -9,9 +9,23 @@
     <h2>{{ survey.title }}</h2>
     <p>Question {{ progress.current_question_index + 1 }} of {{ total_questions }}</p>
 
-    <form method="POST" action="{{ url_for('take_survey', survey_id=survey.id) }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    <!-- Display user's current balance -->
+    <div class="mb-3">
+        Current Balance: ${{ "%.2f" | format(current_user.balance) }}
+    </div>
 
+    <!-- Display per-question payout -->
+    <div class="mb-3">
+        You earn ${{ "%.4f" | format(survey.per_question_payout) }} per question.
+    </div>
+
+    <!-- Display total earned from this survey -->
+    <div class="mb-3">
+        Total Earned from this Survey: ${{ "%.2f" | format(progress.payout) }}
+    </div>
+
+    <form method="POST" action="{{ url_for('take_survey', survey_id=survey.id) }}">
+        {{ form.hidden_tag() }}
 
         <div class="mb-3">
             {% if form.answer.label %}
@@ -25,14 +39,6 @@
                         <label class="form-check-label" for="{{ subfield.id }}">{{ subfield.label.text }}</label>
                     </div>
                 {% endfor %}
-
-
-            {% elif form.answer.type == 'IntegerField' %}
-                {{ form.answer(class="form-control") }}
-
-            {% elif form.answer.type == 'StringField' or form.answer.type == 'TextAreaField' %}
-                {{ form.answer(class="form-control") }}
-
             {% else %}
                 {{ form.answer(class="form-control") }}
             {% endif %}
