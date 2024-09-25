@@ -3,12 +3,10 @@
 {% block title %}Profile{% endblock %}
 
 {% block content %}
-    <h2>Profile</h2>
-    <p>This is the Profile page.</p>
 
     {% if current_user.is_authenticated %}
         {% if user.is_business %}
-            <h3>Business Dashboard</h3>
+            <h3>Business Profile</h3>
             <p>This content is visible only to business users.</p>
 
             <!-- Display the current balance -->
@@ -23,10 +21,16 @@
             </form>
 
             <a href="{{ url_for('upload_survey') }}" class="btn btn-primary mt-2">Upload Survey</a>
+        {% else %}
+            <h3>{{current_user.username}}'s Profile</h3>
+            <p>This content is visible to regular users.</p>
+
         {% endif %}
+
 
         <a href="{{ url_for('logout') }}" class="btn btn-primary">Logout</a>
     {% else %}
+
         <a href="{{ url_for('register') }}" class="btn btn-primary">Register</a>
         <a href="{{ url_for('login') }}" class="btn btn-primary">Login</a>
     {% endif %}

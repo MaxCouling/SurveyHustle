@@ -31,7 +31,7 @@ def index():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('profile'))
     form = RegistrationForm()
     if form.validate_on_submit():
         print("Form validated successfully")
@@ -56,7 +56,7 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('profile'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
@@ -64,7 +64,7 @@ def login():
             login_user(user)
             flash('Logged in successfully.', 'success')
             next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect(url_for('dashboard'))
+            return redirect(next_page) if next_page else redirect(url_for('profile'))
         else:
             flash('Invalid username or password.', 'danger')
     return render_template('login.html', form=form)
@@ -114,7 +114,7 @@ def settings():
 def upload_survey():
     if not current_user.is_business:
         flash('You must be a business user to upload surveys.', 'danger')
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('profile'))
 
     form = UploadSurveyForm()
     if form.validate_on_submit():
@@ -167,7 +167,7 @@ def upload_survey():
         db.session.commit()
 
         flash('Survey uploaded successfully!', 'success')
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('profile'))
     else:
         if request.method == 'POST':
             flash('Please correct the errors below.', 'danger')
@@ -229,7 +229,7 @@ def take_survey(survey_id):
 
     if progress.completed:
         flash('You have already completed this survey.', 'info')
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('profile'))
 
     questions = survey.questions.order_by(Question.order).all()
     total_questions = len(questions)
@@ -242,7 +242,7 @@ def take_survey(survey_id):
             survey.active = False
         db.session.commit()
         flash('Survey completed! Thank you.', 'success')
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('profile'))
 
     question = questions[progress.current_question_index]
 
@@ -254,7 +254,7 @@ def take_survey(survey_id):
             choices = json.loads(question.choices)
         except json.JSONDecodeError:
             flash('Invalid choices format for multiple choice question.', 'danger')
-            return redirect(url_for('dashboard'))
+            return redirect(url_for('profile'))
         setattr(DynamicSurveyForm, 'answer', RadioField(
             question.question_text,
             choices=[(choice, choice) for choice in choices],
@@ -272,7 +272,7 @@ def take_survey(survey_id):
         ))
     else:
         flash('Unknown question type.', 'danger')
-        return redirect(url_for('dashboard'))
+        return redirect(url_for('profile'))
 
     form = DynamicSurveyForm()
 
