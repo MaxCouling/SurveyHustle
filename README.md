@@ -176,20 +176,8 @@ module.exports = {
 - **DaisyUI Plugin:** Adds DaisyUI as a plugin.
 - **Themes:** Lists all the DaisyUI themes you want to use.
 
-## 6.6 Create Tailwind Input CSS File
 
-Create a CSS file where Tailwind CSS directives will be added. For example, create `app/static/css/tailwind.css` with the following content:
-
-```css
-/* app/static/css/tailwind.css */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Custom styles can go here */
-```
-
-## 6.7 Build Tailwind CSS
+## 6.6 Build Tailwind CSS
 
 Add a build script to your `package.json`:
 
@@ -203,9 +191,22 @@ Add a build script to your `package.json`:
   // ... existing content ...
 }
 ```
+## 6.7 Build Tailwind CSS
 
+Build it!
+
+```bash
+npm run build:css
+```
 
 7.  **Access the Application**
     
-    Open your web browser and navigate to [http://localhost:5000](http://localhost:5000).  
-    You can now register a new account and start using SurveyHustle locally.
+Run Flask!
+
+```bash
+flask run
+```
+
+
+Open your web browser and navigate to [http://localhost:5000](http://localhost:5000).  
+You can now register a new account and start using SurveyHustle locally.
