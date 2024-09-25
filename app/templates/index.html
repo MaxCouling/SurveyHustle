@@ -1,4 +1,5 @@
-{% extends 'base.html' %}
+<!-- index.html -->
+{% extends 'index.html' %}
 
 {% block title %}Home{% endblock %}
 
@@ -7,5 +8,6 @@
     <h1>Welcome to Survey Hustle</h1>
     <p>Your one-stop platform for surveys and rewards.</p>
     <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Get Started</a>
+    <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg">Log-in</a>
 </div>
 {% endblock %}
