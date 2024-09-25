@@ -82,7 +82,7 @@ def dashboard():
 @app.route('/explore')
 @login_required
 def explore():
-    surveys = Survey.query.all()
+    surveys = Survey.query.filter_by(active=True).all()
     return render_template('explore.html', surveys=surveys)
 
 @app.route('/profile', methods=['GET', 'POST'])
@@ -109,31 +109,39 @@ def settings():
 
 # routes.py
 
-@ app.route('/upload_survey', methods=['GET', 'POST'])
-@ login_required
+@app.route('/upload_survey', methods=['GET', 'POST'])
+@login_required
 def upload_survey():
     if not current_user.is_business:
         flash('You must be a business user to upload surveys.', 'danger')
         return redirect(url_for('dashboard'))
+
     form = UploadSurveyForm()
     if form.validate_on_submit():
-        # Save survey details
+        # Check if the user has enough balance
+        if current_user.balance < form.total_payout.data:
+            flash('Insufficient balance to upload survey.', 'danger')
+            return redirect(url_for('profile'))
+
+        # Deduct the total payout from the business user's balance
+        current_user.balance -= form.total_payout.data
+
+        # Create the survey
         survey = Survey(
             title=form.title.data,
             description=form.description.data,
             terms_and_conditions=form.terms_and_conditions.data,
-            balance=form.balance.data,
+            total_payout=form.total_payout.data,
+            desired_respondents=form.desired_respondents.data,
             owner=current_user
         )
         db.session.add(survey)
-        db.session.commit()
+        db.session.commit()  # Commit to get survey.id
 
         # Process CSV file
         file = form.csv_file.data
         filename = secure_filename(file.filename)
         filepath = os.path.join('uploads/', filename)
-
-
         file.save(filepath)
 
         # Read CSV and create questions
@@ -151,18 +159,31 @@ def upload_survey():
                 db.session.add(question)
                 order += 1
         db.session.commit()
+
+        # Calculate per-question payout
+        total_questions = survey.questions.count()
+        per_question_payout = survey.total_payout / (survey.desired_respondents * total_questions)
+        survey.per_question_payout = per_question_payout
+        db.session.commit()
+
         flash('Survey uploaded successfully!', 'success')
         return redirect(url_for('dashboard'))
     else:
         if request.method == 'POST':
             flash('Please correct the errors below.', 'danger')
-            print(form.errors)  # For debugging
     return render_template('upload_survey.html', form=form)
 
 @app.route('/start_survey/<int:survey_id>', methods=['GET', 'POST'])
 @login_required
 def start_survey(survey_id):
     survey = Survey.query.get_or_404(survey_id)
+
+    if not survey.active or survey.current_respondents >= survey.desired_respondents:
+        survey.active = False
+        db.session.commit()
+        flash('This survey is no longer available.', 'danger')
+        return redirect(url_for('explore'))
+
     progress = UserSurveyProgress.query.filter_by(user_id=current_user.id, survey_id=survey.id).first()
     if progress and progress.current_question_index > 0:
         return redirect(url_for('take_survey', survey_id=survey.id))
@@ -178,30 +199,52 @@ def start_survey(survey_id):
                 return redirect(url_for('explore'))
         return render_template('survey_terms.html', survey=survey)
 
-# routes.py
+
+
+
+
 
 @app.route('/take_survey/<int:survey_id>', methods=['GET', 'POST'])
 @login_required
 def take_survey(survey_id):
     survey = Survey.query.get_or_404(survey_id)
+
+    # Check if the survey is active
+    if not survey.active:
+        flash('This survey is no longer active.', 'danger')
+        return redirect(url_for('explore'))
+
+    # Ensure survey hasn't reached desired respondents
+    if survey.current_respondents >= survey.desired_respondents:
+        survey.active = False
+        db.session.commit()
+        flash('This survey has reached its maximum number of respondents.', 'info')
+        return redirect(url_for('explore'))
+
     progress = UserSurveyProgress.query.filter_by(user_id=current_user.id, survey_id=survey.id).first()
 
-    if not progress or progress.completed:
-        flash('Survey not found or already completed.', 'danger')
+    if not progress:
+        flash('You have not started this survey yet.', 'danger')
         return redirect(url_for('explore'))
+
+    if progress.completed:
+        flash('You have already completed this survey.', 'info')
+        return redirect(url_for('dashboard'))
 
     questions = survey.questions.order_by(Question.order).all()
     total_questions = len(questions)
 
     if progress.current_question_index >= total_questions:
         progress.completed = True
+        # Increment current respondents
+        survey.current_respondents += 1
+        if survey.current_respondents >= survey.desired_respondents:
+            survey.active = False
         db.session.commit()
         flash('Survey completed! Thank you.', 'success')
         return redirect(url_for('dashboard'))
 
     question = questions[progress.current_question_index]
-    print(f"Displaying question {progress.current_question_index + 1}: {question.question_text}")
-    print(question.question_type)
 
     class DynamicSurveyForm(FlaskForm):
         pass
@@ -233,39 +276,30 @@ def take_survey(survey_id):
 
     form = DynamicSurveyForm()
 
+    # Handle form submission
     if form.validate_on_submit():
-        print("Form validated successfully.")
-        # Retrieve the answer from the form
-        answer = form.answer.data
-        print(f"Received answer: {answer}")
-
-        # Save the response
+         # Save the response
         response = Response(
             user_id=current_user.id,
-            #survey_id=survey.id,  # Ensure survey_id is included
             question_id=question.id,
-            answer=answer
+            answer=form.answer.data
         )
         db.session.add(response)
-        print("Response added to the database.")
+
+        # Add per-question payout to user's balance
+        current_user.balance += survey.per_question_payout
+        progress.payout += survey.per_question_payout
 
         # Update progress
         progress.current_question_index += 1
-        print(f"Updated current_question_index to {progress.current_question_index}")
-        if progress.current_question_index >= total_questions:
-            progress.completed = True
-            flash('Survey completed! Thank you for your participation.', 'success')
-            print("Survey completed by user.")
+
         db.session.commit()
-        print("Progress committed to the database.")
 
         # Redirect to the same route to load the next question
         return redirect(url_for('take_survey', survey_id=survey.id))
-
     else:
         if request.method == 'POST':
-            print("Form validation failed.")
-            print("Form errors:", form.errors)
+            flash('Please correct the errors below.', 'danger')
 
     return render_template('take_survey.html', form=form, question=question, survey=survey, progress=progress,
-                           total_questions=total_questions)
+                               total_questions=total_questions)
