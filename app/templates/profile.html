@@ -4,27 +4,26 @@
 {% block title %}Profile{% endblock %}
 
 {% block content %}
-
+<div class="prose">
     {% if current_user.is_authenticated %}
         {% if user.is_business %}
             <h3>Business Profile</h3>
             <p>This content is visible only to business users.</p>
 
             <!-- Button to add $20 -->
-            <form method="POST">
+            <form method="POST" class="mb-4">
                 {{ form.hidden_tag() }}  <!-- CSRF token -->
-                {{ form.submit(class="btn btn-primary") }}
+                {{ form.submit(class="btn btn-secondary") }}
             </form>
 
-            <a href="{{ url_for('upload_survey') }}" class="btn btn-primary mt-2">Upload Survey</a>
-
+            <a href="{{ url_for('upload_survey') }}" class="btn btn-primary mb-4">Upload Survey</a>
 
             <h3>Your Surveys</h3>
-            <ul>
+            <ul class="list-disc pl-5">
                 {% for survey in current_user.surveys %}
-                    <li>
+                    <li class="mb-2">
                         {{ survey.title }}
-                        <a href="{{ url_for('export_responses', survey_id=survey.id) }}" class="btn btn-secondary btn-sm">Export Responses</a>
+                        <a href="{{ url_for('export_responses', survey_id=survey.id) }}" class="btn btn-outline btn-sm ml-2">Export Responses</a>
                     </li>
                 {% endfor %}
             </ul>
@@ -32,15 +31,12 @@
         {% else %}
             <h3>{{current_user.username}}'s Profile</h3>
             <p>This content is visible to regular users.</p>
-
         {% endif %}
 
-
-        <a href="{{ url_for('logout') }}" class="btn btn-primary">Logout</a>
+        <a href="{{ url_for('logout') }}" class="btn btn-secondary mt-4">Logout</a>
     {% else %}
-
         <a href="{{ url_for('register') }}" class="btn btn-primary">Register</a>
-        <a href="{{ url_for('login') }}" class="btn btn-primary">Login</a>
+        <a href="{{ url_for('login') }}" class="btn btn-secondary">Login</a>
     {% endif %}
-
+</div>
 {% endblock %}

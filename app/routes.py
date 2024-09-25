@@ -356,3 +356,10 @@ def export_responses(survey_id):
         as_attachment=True,
         download_name=filename  # This parameter is outdated in Flask 2.0+
     )
+
+
+@app.route('/payment', methods=['GET', 'POST'])
+@login_required
+def payment():
+    # Handle payment logic here
+    return render_template('payment.html')

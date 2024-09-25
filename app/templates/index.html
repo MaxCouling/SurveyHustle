@@ -1,13 +1,15 @@
-<!-- index.html -->
-{% extends 'index.html' %}
+<!-- templates/index.html -->
+{% extends 'base.html' %}
 
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<div class="text-center">
-    <h1>Welcome to Survey Hustle</h1>
-    <p>Your one-stop platform for surveys and rewards.</p>
-    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Get Started</a>
-    <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg">Log-in</a>
+<div class="text-center py-10">
+    <h1 class="text-5xl font-bold mb-6">Welcome to Survey Hustle</h1>
+    <p class="text-lg mb-8">Your one-stop platform for surveys and rewards.</p>
+    <div class="flex justify-center space-x-4">
+        <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Get Started</a>
+        <a href="{{ url_for('login') }}" class="btn btn-secondary btn-lg">Log In</a>
+    </div>
 </div>
 {% endblock %}
