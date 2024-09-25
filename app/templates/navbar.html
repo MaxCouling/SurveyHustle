@@ -25,7 +25,7 @@
         </div> -->
         {% if current_user.is_authenticated %}
         <span class="nav-link">Balance: </span>
-        <button type="button" class="btn btn-success">Balance: $<span id="user-balance">{{ current_user.balance }}</span></button>
+        <button type="button" class="btn btn-success">Balance: ${{ "%.2f" | format(current_user.balance) }}</button>
         {%endif%}
     </div>
 </nav>
