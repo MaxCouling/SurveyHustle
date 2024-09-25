@@ -13,7 +13,7 @@ class User(UserMixin, db.Model):
     surveys = db.relationship('Survey', backref='owner', lazy='dynamic')
     responses = db.relationship('Response', backref='user', lazy='dynamic')
     survey_progress = db.relationship('UserSurveyProgress', backref='user', lazy='dynamic')
-    total_payout = db.Column(db.Float, default=0.0)
+    balance = db.Column(db.Float, default=0.0)
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -27,7 +27,7 @@ class Survey(db.Model):
     title = db.Column(db.String(140))
     description = db.Column(db.Text)
     terms_and_conditions = db.Column(db.Text)
-    total_payout = db.Column(db.Float)
+    balance = db.Column(db.Float)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     questions = db.relationship('Question', backref='survey', lazy='dynamic')
 

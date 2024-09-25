@@ -30,6 +30,9 @@ class UploadSurveyForm(FlaskForm):
     title = StringField('Survey Title', validators=[DataRequired()])
     description = TextAreaField('Description', validators=[DataRequired()])
     terms_and_conditions = TextAreaField('Terms and Conditions', validators=[DataRequired()])
-    total_payout = FloatField('Total Payout', validators=[DataRequired()])
+    balance = FloatField('Balance', validators=[DataRequired()])
     csv_file = FileField('Survey Questions CSV', validators=[DataRequired()])
     submit = SubmitField('Upload Survey')
+
+class AddBalanceForm(FlaskForm):
+    submit = SubmitField('Add $20')

@@ -3,13 +3,13 @@ from flask_wtf import FlaskForm
 
 import os
 
-from flask import render_template, redirect, url_for, flash, request
+from flask import render_template, redirect, url_for, flash, request, jsonify
 
 from app import app, db
 from app.models import User, Survey, Question, Response, UserSurveyProgress
 
 
-from app.forms import RegistrationForm, LoginForm, UploadSurveyForm
+from app.forms import RegistrationForm, LoginForm, UploadSurveyForm, AddBalanceForm
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -85,10 +85,16 @@ def explore():
     surveys = Survey.query.all()
     return render_template('explore.html', surveys=surveys)
 
-@app.route('/profile')
-#@login_required
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
 def profile():
-    return render_template('profile.html', user=current_user)
+    form = AddBalanceForm()
+    if form.validate_on_submit():
+        current_user.balance += 20
+        db.session.commit()
+        flash('Your balance has been updated.', 'success')
+        return redirect(url_for('profile'))
+    return render_template('profile.html', user=current_user, form=form)
 
 @app.route('/survey')
 #@login_required
@@ -116,7 +122,7 @@ def upload_survey():
             title=form.title.data,
             description=form.description.data,
             terms_and_conditions=form.terms_and_conditions.data,
-            total_payout=form.total_payout.data,
+            balance=form.balance.data,
             owner=current_user
         )
         db.session.add(survey)
@@ -263,4 +269,3 @@ def take_survey(survey_id):
 
     return render_template('take_survey.html', form=form, question=question, survey=survey, progress=progress,
                            total_questions=total_questions)
-

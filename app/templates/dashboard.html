@@ -8,9 +8,11 @@
     <a href="{{ url_for('upload_survey') }}" class="btn btn-primary">Upload Survey</a>
     <!-- Business-specific content goes here -->
 
+
 {% else %}
     <h3>User Dashboard</h3>
     <p>This content is visible to regular users.</p>
     <!-- User-specific content goes here -->
 {% endif %}
+
 {% endblock %}

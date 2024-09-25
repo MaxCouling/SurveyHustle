@@ -10,7 +10,19 @@
         {% if user.is_business %}
             <h3>Business Dashboard</h3>
             <p>This content is visible only to business users.</p>
-            <a href="{{ url_for('upload_survey') }}" class="btn btn-primary">Upload Survey</a>
+
+            <!-- Display the current balance -->
+            <div id="currentBalance" class="mt-3">
+                Current Balance: $<span id="balanceAmount">{{ current_user.balance }}</span>
+            </div>
+
+            <!-- Button to add $20 -->
+            <form method="POST">
+                {{ form.hidden_tag() }}  <!-- CSRF token -->
+                {{ form.submit(class="btn btn-primary") }}
+            </form>
+
+            <a href="{{ url_for('upload_survey') }}" class="btn btn-primary mt-2">Upload Survey</a>
         {% endif %}
 
         <a href="{{ url_for('logout') }}" class="btn btn-primary">Logout</a>
@@ -18,5 +30,5 @@
         <a href="{{ url_for('register') }}" class="btn btn-primary">Register</a>
         <a href="{{ url_for('login') }}" class="btn btn-primary">Login</a>
     {% endif %}
-{% endblock %}
 
+{% endblock %}
