@@ -2,8 +2,10 @@
 from flask_wtf import FlaskForm
 
 import os
+import io
+import csv
 
-from flask import render_template, redirect, url_for, flash, request, jsonify
+from flask import render_template, redirect, url_for, flash, request, send_file
 
 from app import app, db
 from app.models import User, Survey, Question, Response, UserSurveyProgress
@@ -303,3 +305,54 @@ def take_survey(survey_id):
 
     return render_template('take_survey.html', form=form, question=question, survey=survey, progress=progress,
                                total_questions=total_questions)
+
+@app.route('/export_responses/<int:survey_id>')
+@login_required
+def export_responses(survey_id):
+    survey = Survey.query.get_or_404(survey_id)
+
+    # Check if the current user is the owner of the survey
+    if survey.owner_id != current_user.id:
+        flash('You do not have permission to access this survey.', 'danger')
+        return redirect(url_for('dashboard'))
+
+    # Retrieve all questions and their responses
+    questions = survey.questions.order_by(Question.order).all()
+
+    # Prepare the CSV file in memory
+    output = io.StringIO()
+    writer = csv.writer(output)
+
+    # Write the header row
+    header = ['Respondent ID']
+    header.extend([f'Q{question.order + 1}: {question.question_text}' for question in questions])
+    writer.writerow(header)
+
+    # Get all respondent IDs who have completed the survey
+    respondent_ids = db.session.query(Response.user_id).join(Question).filter(
+        Question.survey_id == survey.id
+    ).distinct().all()
+    respondent_ids = [r[0] for r in respondent_ids]
+
+    # For each respondent, collect their answers
+    for respondent_id in respondent_ids:
+        row = [respondent_id]
+        for question in questions:
+            response = Response.query.filter_by(
+                question_id=question.id,
+                user_id=respondent_id
+            ).first()
+            answer = response.answer if response else ''
+            row.append(answer)
+        writer.writerow(row)
+
+    # Prepare the file for download
+    output.seek(0)
+    filename = f'survey_{survey.id}_responses.csv'
+
+    return send_file(
+        io.BytesIO(output.getvalue().encode('utf-8')),
+        mimetype='text/csv',
+        as_attachment=True,
+        download_name=filename  # This parameter is outdated in Flask 2.0+
+    )

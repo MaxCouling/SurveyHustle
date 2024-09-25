@@ -57,7 +57,7 @@ class Response(db.Model):
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'))
     answer = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-
+    #user = db.relationship('User', backref='responses')
     def __repr__(self):
         return f'<Response {self.id}>'
 
