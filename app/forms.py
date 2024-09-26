@@ -40,3 +40,6 @@ class UploadSurveyForm(FlaskForm):
 
 class AddBalanceForm(FlaskForm):
     submit = SubmitField('Add $20')
+
+class AcceptTermsForm(FlaskForm):
+    pass
