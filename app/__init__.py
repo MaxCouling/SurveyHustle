@@ -7,6 +7,7 @@ from csrf import csrf
 from flask_mail import Mail
 from dotenv import load_dotenv
 import os
+from whitenoise import WhiteNoise
 
 load_dotenv()
 app = Flask(__name__)
@@ -16,6 +17,7 @@ db = SQLAlchemy(app)
 login = LoginManager(app)
 login.login_view = 'login'
 csrf.init_app(app)
+app.wsgi_app = WhiteNoise(app.wsgi_app, root='static/')
 
 EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
 # Configure email
