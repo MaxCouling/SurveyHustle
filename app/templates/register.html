@@ -1,34 +1,37 @@
+<!-- register.html -->
 {% extends 'base.html' %}
 {% block title %}Register{% endblock %}
 {% block content %}
-<h2>Register</h2>
-<form method="POST" action="{{ url_for('register') }}">
+<h2 class="text-2xl font-bold mb-4">Register</h2>
+<form method="POST" action="{{ url_for('register') }}" class="max-w-md mx-auto">
     {{ form.hidden_tag() }}
-    <div class="mb-3">
-        {{ form.username.label(class="form-label") }}
-        {{ form.username(class="form-control") }}
+    <div class="form-control mb-4">
+        {{ form.username.label(class="label") }}
+        {{ form.username(class="input input-bordered") }}
         {% for error in form.username.errors %}
-            <div class="text-danger">{{ error }}</div>
+            <span class="text-error">{{ error }}</span>
         {% endfor %}
     </div>
-    <div class="mb-3">
-        {{ form.email.label(class="form-label") }}
-        {{ form.email(class="form-control") }}
+    <div class="form-control mb-4">
+        {{ form.email.label(class="label") }}
+        {{ form.email(class="input input-bordered") }}
         {% for error in form.email.errors %}
-            <div class="text-danger">{{ error }}</div>
+            <span class="text-error">{{ error }}</span>
         {% endfor %}
     </div>
-    <div class="mb-3">
-        {{ form.password.label(class="form-label") }}
-        {{ form.password(class="form-control") }}
+    <div class="form-control mb-4">
+        {{ form.password.label(class="label") }}
+        {{ form.password(class="input input-bordered") }}
         {% for error in form.password.errors %}
-            <div class="text-danger">{{ error }}</div>
+            <span class="text-error">{{ error }}</span>
         {% endfor %}
     </div>
-    <div class="mb-3 form-check">
-        {{ form.is_business(class="form-check-input") }}
-        {{ form.is_business.label(class="form-check-label") }}
+    <div class="form-control mb-4">
+        <label class="label cursor-pointer">
+            {{ form.is_business(class="checkbox checkbox-primary") }}
+            <span class="label-text ml-2">{{ form.is_business.label.text }}</span>
+        </label>
     </div>
-    <button type="submit" class="btn btn-primary">Register</button>
+    <button type="submit" class="btn btn-primary w-full">Register</button>
 </form>
 {% endblock %}

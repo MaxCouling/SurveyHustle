@@ -1,49 +1,21 @@
+<!-- base.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <title>Survey Hustle - {% block title %}{% endblock %}</title>
-
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons CSS -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-    <!-- Custom Styles -->
-    <!-- No styles.css, so we'll include styles here -->
-    <style>
-        body {
-            margin-bottom: 80px; /* Increased space for the fixed navbar */
-        }
-        .navbar-bottom {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-            height: 80px; /* Increased height */
-            z-index: 1030;
-            background-color: #343a40; /* Ensure background color covers entire navbar */
-        }
-        .navbar-bottom .nav-item .nav-link {
-            color: #fff;
-            text-align: center;
-            padding-top: 8px; /* Adjusted padding */
-            font-size: 14px;  /* Increased font size */
-        }
-        .navbar-bottom .nav-item .nav-link .bi {
-            display: block;
-            font-size: 28px; /* Increased icon size */
-        }
-    </style>
+    <link href="{{ url_for('static', filename='css/output.css') }}" rel="stylesheet">
 </head>
-<body>
+<body class="min-h-screen flex flex-col">
     {% include 'navbar.html' %}
-    <div class="container mt-4">
+    <div class="container mx-auto px-4 py-6 flex-grow pb-16">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    <div class="alert alert-{{ category }} shadow-lg mb-4">
+                        <div>
+                            <span>{{ message }}</span>
+                        </div>
                     </div>
                 {% endfor %}
             {% endif %}
@@ -51,8 +23,14 @@
         {% block content %}{% endblock %}
     </div>
     {% include 'bottom_navbar.html' %}
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+
+    <!-- Theme Switcher Script -->
+    <script>
+        // Load the saved theme on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        });
+    </script>
 </body>
 </html>

@@ -1,26 +1,25 @@
 <!-- templates/survey_terms.html -->
-
 {% extends 'base.html' %}
 
 {% block title %}{{ survey.title }} - Terms and Conditions{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2>{{ survey.title }}</h2>
-    <p>{{ survey.description }}</p>
+<div class="container mx-auto">
+    <h2 class="text-2xl font-bold mb-2">{{ survey.title }}</h2>
+    <p class="mb-4">{{ survey.description }}</p>
 
-    <h4>Terms and Conditions</h4>
-    <p>{{ survey.terms_and_conditions }}</p>
+    <h4 class="font-semibold mb-2">Terms and Conditions</h4>
+    <p class="mb-4">{{ survey.terms_and_conditions }}</p>
 
     <form method="POST" action="{{ url_for('start_survey', survey_id=survey.id) }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-        <div class="form-check mb-3">
-            <input class="form-check-input" type="checkbox" name="accept" id="accept" required>
-            <label class="form-check-label" for="accept">
-                I accept the terms and conditions
+        {{ form.hidden_tag() }}
+        <div class="form-control mb-4">
+            <label class="label cursor-pointer">
+                <input type="checkbox" name="accept" id="accept" class="checkbox checkbox-primary" required>
+                <span class="label-text ml-2">I accept the terms and conditions</span>
             </label>
         </div>
-        <button type="submit" class="btn btn-primary">Start Survey</button>
+        <button type="submit" class="btn btn-primary w-full">Start Survey</button>
     </form>
 </div>
 {% endblock %}

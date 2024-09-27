@@ -1,17 +1,24 @@
+<!-- login.html -->
 {% extends 'base.html' %}
 {% block title %}Login{% endblock %}
 {% block content %}
-<h2>Login</h2>
-<form method="POST" action="{{ url_for('login') }}">
+<h2 class="text-2xl font-bold mb-4">Login</h2>
+<form method="POST" action="{{ url_for('login') }}" class="max-w-md mx-auto">
     {{ form.hidden_tag() }}
-    <div class="mb-3">
-        {{ form.username.label(class="form-label") }}
-        {{ form.username(class="form-control") }}
+    <div class="form-control mb-4">
+        {{ form.username.label(class="label") }}
+        {{ form.username(class="input input-bordered") }}
+        {% for error in form.username.errors %}
+            <span class="text-error">{{ error }}</span>
+        {% endfor %}
     </div>
-    <div class="mb-3">
-        {{ form.password.label(class="form-label") }}
-        {{ form.password(class="form-control") }}
+    <div class="form-control mb-4">
+        {{ form.password.label(class="label") }}
+        {{ form.password(class="input input-bordered") }}
+        {% for error in form.password.errors %}
+            <span class="text-error">{{ error }}</span>
+        {% endfor %}
     </div>
-    <button type="submit" class="btn btn-primary">Login</button>
+    <button type="submit" class="btn btn-primary w-full">Login</button>
 </form>
 {% endblock %}

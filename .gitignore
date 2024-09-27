@@ -6,3 +6,8 @@ app.db
 .db
 .idea
 .env
+package.json
+package-lock.json
+tailwind.config.js
+node_modules/
+app/static/css/output.css

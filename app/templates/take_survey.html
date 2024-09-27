@@ -1,50 +1,50 @@
 <!-- templates/take_survey.html -->
-
 {% extends 'base.html' %}
 
 {% block title %}{{ survey.title }} - Question {{ progress.current_question_index + 1 }}{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2>{{ survey.title }}</h2>
-    <p>Question {{ progress.current_question_index + 1 }} of {{ total_questions }}</p>
+<div class="container mx-auto">
+    <h2 class="text-2xl font-bold mb-2">{{ survey.title }}</h2>
+    <p class="mb-4">Question {{ progress.current_question_index + 1 }} of {{ total_questions }}</p>
 
-    <!-- Display user's current balance -->
+    <!-- Display user's current balance
     <div class="mb-3">
-        Current Balance: ${{ "%.2f" | format(current_user.balance) }}
-    </div>
+        <span class="font-semibold">Current Balance:</span> ${{ "%.2f" | format(current_user.balance) }}
+    </div>-->
 
     <!-- Display per-question payout -->
     <div class="mb-3">
-        You earn ${{ "%.4f" | format(survey.per_question_payout) }} per question.
+        <span class="font-semibold">You earn:</span> ${{ "%.4f" | format(survey.per_question_payout) }} per question
     </div>
 
     <!-- Display total earned from this survey -->
     <div class="mb-3">
-        Total Earned from this Survey: ${{ "%.2f" | format(progress.payout) }}
+        <span class="font-semibold">Total Earned from this Survey:</span> ${{ "%.2f" | format(progress.payout) }}
     </div>
 
     <form method="POST" action="{{ url_for('take_survey', survey_id=survey.id) }}">
         {{ form.hidden_tag() }}
 
-        <div class="mb-3">
+        <div class="form-control mb-4">
             {% if form.answer.label %}
-                <label class="form-label">{{ form.answer.label.text }}</label>
+                <label class="label">{{ form.answer.label.text }}</label>
             {% endif %}
 
             {% if form.answer.type == 'RadioField' %}
                 {% for subfield in form.answer %}
-                    <div class="form-check">
-                        {{ subfield(class="form-check-input", id=subfield.id) }}
-                        <label class="form-check-label" for="{{ subfield.id }}">{{ subfield.label.text }}</label>
-                    </div>
+                    <label class="flex items-center mb-2 cursor-pointer">
+                        {{ subfield(class="radio radio-primary") }}
+                        <span class="ml-2">{{ subfield.label.text }}</span>
+                    </label>
                 {% endfor %}
+
             {% else %}
-                {{ form.answer(class="form-control") }}
+                {{ form.answer(class="input input-bordered") }}
             {% endif %}
 
             {% if form.answer.errors %}
-                <div class="text-danger">
+                <div class="text-error">
                     {% for error in form.answer.errors %}
                         <span>{{ error }}</span>
                     {% endfor %}
@@ -52,7 +52,7 @@
             {% endif %}
         </div>
 
-        <button type="submit" class="btn btn-primary">
+        <button type="submit" class="btn btn-primary w-full">
             {% if progress.current_question_index + 1 == total_questions %}
                 Submit Survey
             {% else %}

@@ -11,7 +11,7 @@ from app import app, db
 from app.models import User, Survey, Question, Response, UserSurveyProgress
 
 
-from app.forms import RegistrationForm, LoginForm, UploadSurveyForm, AddBalanceForm
+from app.forms import RegistrationForm, LoginForm, UploadSurveyForm, AddBalanceForm, AcceptTermsForm
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -20,7 +20,6 @@ from werkzeug.utils import secure_filename
 from wtforms import StringField, TextAreaField, IntegerField, RadioField
 from wtforms.validators import DataRequired, NumberRange
 
-import csv
 import json
 
 @app.route('/', methods=['GET', 'POST'])
@@ -190,6 +189,7 @@ def start_survey(survey_id):
     if progress and progress.current_question_index > 0:
         return redirect(url_for('take_survey', survey_id=survey.id))
     else:
+        form = AcceptTermsForm()
         if request.method == 'POST':
             if 'accept' in request.form:
                 progress = UserSurveyProgress(user_id=current_user.id, survey_id=survey.id)
@@ -199,7 +199,7 @@ def start_survey(survey_id):
             else:
                 flash('You must accept the terms to proceed.', 'danger')
                 return redirect(url_for('explore'))
-        return render_template('survey_terms.html', survey=survey)
+        return render_template('survey_terms.html', survey=survey, form=form)
 
 
 
@@ -356,3 +356,10 @@ def export_responses(survey_id):
         as_attachment=True,
         download_name=filename  # This parameter is outdated in Flask 2.0+
     )
+
+
+@app.route('/payment', methods=['GET', 'POST'])
+@login_required
+def payment():
+    # Handle payment logic here
+    return render_template('payment.html')

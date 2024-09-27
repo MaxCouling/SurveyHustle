@@ -1,31 +1,31 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="{{ url_for('index') }}">Survey Hustle</a>
-        <!-- <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                {% if current_user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('dashboard') }}">Dashboard</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-                    </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('register') }}">Register</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('login') }}">Login</a>
-                    </li>
-                {% endif %}
-            </ul>
-        </div> -->
+<!-- navbar.html -->
+<nav class="navbar bg-base-100 shadow-lg">
+    <div class="flex-1">
+        <a class="btn btn-ghost normal-case text-xl" href="{{ url_for('index') }}">Survey Hustle</a>
+    </div>
+    <div class="flex-none gap-4">
         {% if current_user.is_authenticated %}
-        <span class="nav-link">Balance: </span>
-        <button type="button" class="btn btn-success">Balance: ${{ "%.2f" | format(current_user.balance) }}</button>
-        {%endif%}
+            <!-- Display User Balance -->
+            <div class="flex items-center">
+                <span class="text-base font-medium">Balance:</span>
+                <span class="ml-2 badge badge-primary badge-lg">${{ "%.2f" | format(current_user.balance) }}</span>
+            </div>
+
+
+            <!-- User Avatar and Dropdown -->
+            <div class="dropdown dropdown-end">
+                <label tabindex="0" class="btn btn-ghost btn-circle avatar">
+                    <div class="w-10 rounded-full">
+                        <img src="{{ url_for('static', filename='images/default.jpeg') }}" />
+                    </div>
+                </label>
+                <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52">
+                    <li><a href="{{ url_for('profile') }}">Profile</a></li>
+                    <li><a href="{{ url_for('logout') }}">Logout</a></li>
+                </ul>
+            </div>
+
+
+        {% endif %}
     </div>
 </nav>

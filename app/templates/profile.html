@@ -1,45 +1,64 @@
+<!-- templates/profile.html -->
 {% extends 'base.html' %}
 
 {% block title %}Profile{% endblock %}
 
 {% block content %}
-
+<div class="container mx-auto py-8">
     {% if current_user.is_authenticated %}
         {% if user.is_business %}
-            <h3>Business Profile</h3>
-            <p>This content is visible only to business users.</p>
+            <div class="flex items-center justify-between mb-6">
+                <h1 class="text-3xl font-bold">Business Profile</h1>
+                <a href="{{ url_for('logout') }}" class="btn btn-outline">Logout</a>
+            </div>
+            <p>Welcome back, {{ current_user.username }}. Manage your surveys and account here.</p>
 
             <!-- Button to add $20 -->
-            <form method="POST">
-                {{ form.hidden_tag() }}  <!-- CSRF token -->
-                {{ form.submit(class="btn btn-primary") }}
+            <form method="POST" class="mb-6">
+                {{ form.hidden_tag() }} <!-- CSRF token -->
+                <button type="submit" class="btn btn-primary">
+                    Add $20 to Account
+                </button>
             </form>
 
-            <a href="{{ url_for('upload_survey') }}" class="btn btn-primary mt-2">Upload Survey</a>
+            <a href="{{ url_for('upload_survey') }}" class="btn btn-secondary mb-8">Upload New Survey</a>
 
+            <h2 class="text-2xl font-semibold mb-4">Your Surveys</h2>
+            {% if current_user.surveys %}
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {% for survey in current_user.surveys %}
+                        <div class="card shadow-lg bg-base-200 hover:bg-base-300 transition-colors rounded-lg">
+                            <div class="card-body">
+                                <h3 class="card-title">{{ survey.title }}</h3>
+                                <p>{{ survey.description }}</p>
+                                <div class="card-actions mt-4">
+                                    <a href="{{ url_for('export_responses', survey_id=survey.id) }}" class="btn btn-outline btn-sm">Export Responses</a>
+                                </div>
+                            </div>
+                        </div>
 
-            <h3>Your Surveys</h3>
-            <ul>
-                {% for survey in current_user.surveys %}
-                    <li>
-                        {{ survey.title }}
-                        <a href="{{ url_for('export_responses', survey_id=survey.id) }}" class="btn btn-secondary btn-sm">Export Responses</a>
-                    </li>
-                {% endfor %}
-            </ul>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p>You have not created any surveys yet.</p>
+            {% endif %}
 
         {% else %}
-            <h3>{{current_user.username}}'s Profile</h3>
-            <p>This content is visible to regular users.</p>
-
+            <div class="flex items-center justify-between mb-6">
+                <h1 class="text-3xl font-bold">{{ current_user.username }}'s Profile</h1>
+                <a href="{{ url_for('logout') }}" class="btn btn-outline">Logout</a>
+            </div>
+            <p>Welcome back! Explore available surveys and participate to earn rewards.</p>
+            <!-- Additional content for regular users can be added here -->
         {% endif %}
 
-
-        <a href="{{ url_for('logout') }}" class="btn btn-primary">Logout</a>
     {% else %}
-
-        <a href="{{ url_for('register') }}" class="btn btn-primary">Register</a>
-        <a href="{{ url_for('login') }}" class="btn btn-primary">Login</a>
+        <div class="text-center py-20">
+            <h1 class="text-4xl font-bold mb-6">Welcome to SurveyHustle</h1>
+            <p>Please register or log in to access your profile.</p>
+            <a href="{{ url_for('register') }}" class="btn btn-primary mr-4">Register</a>
+            <a href="{{ url_for('login') }}" class="btn btn-secondary">Login</a>
+        </div>
     {% endif %}
-
+</div>
 {% endblock %}

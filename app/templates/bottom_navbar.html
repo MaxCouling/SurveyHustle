@@ -1,30 +1,19 @@
-<nav class="navbar navbar-dark bg-dark navbar-bottom">
-    <div class="container-fluid">
-        <ul class="nav justify-content-around w-100">
-            <li class="nav-item">
-                <a class="nav-link{% if request.endpoint == 'explore' %} active{% endif %}" href="{{ url_for('explore') }}">
-                    <i class="bi bi-compass-fill"></i>
-                    <span>Explore</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link{% if request.endpoint == 'profile' %} active{% endif %}" href="{{ url_for('profile') }}">
-                    <i class="bi bi-person-fill"></i>
-                    <span>Profile</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link{% if request.endpoint == 'survey' %} active{% endif %}" href="{{ url_for('survey') }}">
-                    <i class="bi bi-clipboard-check-fill"></i>
-                    <span>Survey</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link{% if request.endpoint == 'settings' %} active{% endif %}" href="{{ url_for('settings') }}">
-                    <i class="bi bi-gear-fill"></i>
-                    <span>Settings</span>
-                </a>
-            </li>
-        </ul>
-    </div>
+<!-- bottom_navbar.html -->
+<nav class="btm-nav fixed bottom-0 left-0 right-0">
+    <a href="{{ url_for('explore') }}" class="{% if request.endpoint == 'explore' %}active{% endif %}">
+        <i class="bi bi-compass-fill"></i>
+        <span class="btm-nav-label">Explore</span>
+    </a>
+    <a href="{{ url_for('profile') }}" class="{% if request.endpoint == 'profile' %}active{% endif %}">
+        <i class="bi bi-person-fill"></i>
+        <span class="btm-nav-label">Profile</span>
+    </a>
+    <a href="{{ url_for('payment') }}" class="{% if request.endpoint == 'payment' %}active{% endif %}">
+        <i class="bi bi-credit-card-fill"></i>
+        <span class="btm-nav-label">Payment</span>
+    </a>
+    <a href="{{ url_for('settings') }}" class="{% if request.endpoint == 'settings' %}active{% endif %}">
+        <i class="bi bi-gear-fill"></i>
+        <span class="btm-nav-label">Settings</span>
+    </a>
 </nav>
