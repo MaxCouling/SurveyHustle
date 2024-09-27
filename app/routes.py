@@ -387,4 +387,26 @@ def payment():
         db.session.commit()
         flash('Your payout request has been submitted.', 'success')
         return redirect(url_for('profile'))
-    return render_template('payment.html', form=form)
+    return render_template('payment.html', form=form, user=current_user)
+
+
+@app.route('/add_balance', methods=['GET', 'POST'])
+@login_required
+def add_balance():
+    if not current_user.is_business:
+        flash('You must be a business user to add balance.', 'danger')
+        return redirect(url_for('profile'))
+    form = AddBalanceForm()
+    if form.validate_on_submit():
+        amount = form.amount.data
+        custom_amount = form.custom_amount.data
+        if custom_amount:
+            amount = custom_amount
+        else:
+            amount = float(amount)
+        # For testing purposes, we'll just add the amount to the user's balance
+        current_user.balance += amount
+        db.session.commit()
+        flash(f'Added ${amount:.2f} to your balance.', 'success')
+        return redirect(url_for('profile'))
+    return render_template('add_balance.html', form=form, user=current_user)

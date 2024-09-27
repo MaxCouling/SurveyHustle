@@ -1,0 +1,27 @@
+<!-- templates/add_balance.html -->
+
+{% extends 'base.html' %}
+
+{% block title %}Add Balance{% endblock %}
+
+{% block content %}
+<h2 class="text-2xl font-bold mb-4">Add Balance</h2>
+<form method="post">
+    {{ form.hidden_tag() }}
+    <div class="mb-4">
+        <label class="block text-gray-700">Select Amount:</label>
+        {% for subfield in form.amount %}
+            <div class="mt-1">
+                {{ subfield() }} {{ subfield.label.text }}
+            </div>
+        {% endfor %}
+    </div>
+    <div class="mb-4">
+        {{ form.custom_amount.label(class="block text-gray-700") }}
+        {{ form.custom_amount(class="mt-1 block w-full") }}
+    </div>
+    <div class="mb-4">
+        {{ form.submit(class="btn btn-primary") }}
+    </div>
+</form>
+{% endblock %}

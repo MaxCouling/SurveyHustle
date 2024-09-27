@@ -5,7 +5,14 @@
 {% block title %}Payout{% endblock %}
 
 {% block content %}
+<div class="mb-4">
+{% if user.is_business %}
+    <h2 class="text-2xl font-bold mb-4">Pay-in</h2>
+    <a href="{{ url_for('add_balance') }}" class="btn btn-primary">Add Balance</a>
+{% endif %}
+</div>
 <h2 class="text-2xl font-bold mb-4">Payout</h2>
+
 <form method="post">
     {{ form.hidden_tag() }}
     <div class="mb-4">
