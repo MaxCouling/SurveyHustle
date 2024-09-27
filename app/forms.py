@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, FloatField, FileField, IntegerField, RadioField
-from wtforms.validators import DataRequired, Email, EqualTo, ValidationError
+from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Optional, NumberRange
 from app.models import User
 import re
 class RegistrationForm(FlaskForm):
@@ -41,9 +41,9 @@ class UploadSurveyForm(FlaskForm):
 # forms.py
 
 class AddBalanceForm(FlaskForm):
-    amount = RadioField('Select Amount', choices=[('10', '$10'), ('100', '$100'), ('1000', '$1000')], validators=[DataRequired()])
-    custom_amount = FloatField('Custom Amount (optional)')
-    submit = SubmitField('Proceed to Payment')
+    amount = RadioField('Select Amount', choices=[('10', '$10'), ('100', '$100'), ('1000', '$1000')], validators=[Optional()])
+    custom_amount = FloatField('Custom Amount (optional)', validators=[Optional(), NumberRange(min=0.01)])
+    submit = SubmitField('Add Balance')
 
 
 # forms.py

@@ -403,16 +403,17 @@ def add_balance():
     if not current_user.is_business:
         flash('You must be a business user to add balance.', 'danger')
         return redirect(url_for('profile'))
+
     form = AddBalanceForm()
     if form.validate_on_submit():
-        amount = form.amount.data
-        custom_amount = form.custom_amount.data
-        if custom_amount:
-            amount = custom_amount
-        else:
-            amount = float(amount)
-        if amount <= 0:
-            flash('Amount must be greater than zero.', 'danger')
+        amount = None
+        if form.custom_amount.data:
+            amount = form.custom_amount.data
+        elif form.amount.data:
+            amount = float(form.amount.data)
+
+        if amount is None or amount <= 0:
+            flash('Please select a valid amount.', 'danger')
             return redirect(url_for('add_balance'))
 
         # Save the amount to session to use it after payment
@@ -420,7 +421,13 @@ def add_balance():
 
         # Redirect to create checkout session
         return redirect(url_for('create_checkout_session'))
+    else:
+        print("Form validation failed")
+        print(form.errors)
+        print("Request form data:", request.form)
     return render_template('add_balance.html', form=form)
+
+
 
 @app.route('/create-checkout-session', methods=['GET'])
 @login_required

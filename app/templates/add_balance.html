@@ -9,16 +9,26 @@
 <form method="post">
     {{ form.hidden_tag() }}
     <div class="mb-4">
-        <label class="block text-gray-700">Select Amount:</label>
+        {{ form.amount.label(class="block text-gray-700") }}
         {% for subfield in form.amount %}
             <div class="mt-1">
-                {{ subfield() }} {{ subfield.label.text }}
+                {{ subfield(class="form-radio") }} {{ subfield.label }}
             </div>
         {% endfor %}
+        {% if form.amount.errors %}
+            <div class="text-red-500 text-sm">
+                {{ form.amount.errors[0] }}
+            </div>
+        {% endif %}
     </div>
     <div class="mb-4">
         {{ form.custom_amount.label(class="block text-gray-700") }}
         {{ form.custom_amount(class="mt-1 block w-full") }}
+        {% if form.custom_amount.errors %}
+            <div class="text-red-500 text-sm">
+                {{ form.custom_amount.errors[0] }}
+            </div>
+        {% endif %}
     </div>
     <div class="mb-4">
         {{ form.submit(class="btn btn-primary") }}
