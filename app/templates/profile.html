@@ -13,13 +13,13 @@
             </div>
             <p>Welcome back, {{ current_user.username }}. Manage your surveys and account here.</p>
 
-            <!-- Button to add $20 -->
+            <!-- Button to add $20
             <form method="POST" class="mb-6">
-                {{ form.hidden_tag() }} <!-- CSRF token -->
+                {{ form.hidden_tag() }}
                 <button type="submit" class="btn btn-primary">
                     Add $20 to Account
                 </button>
-            </form>
+            </form> -->
 
             <a href="{{ url_for('upload_survey') }}" class="btn btn-secondary mb-8">Upload New Survey</a>
 
