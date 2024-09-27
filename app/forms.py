@@ -1,8 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, FloatField, FileField, IntegerField
-from wtforms.validators import DataRequired, Email, EqualTo, ValidationError
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, FloatField, FileField, IntegerField, RadioField
+from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Optional, NumberRange
 from app.models import User
-
+import re
 class RegistrationForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
@@ -38,8 +38,30 @@ class UploadSurveyForm(FlaskForm):
     submit = SubmitField('Upload Survey')
 
 
+# forms.py
+
 class AddBalanceForm(FlaskForm):
-    submit = SubmitField('Add $20')
+    amount = RadioField('Select Amount', choices=[('10', '$10'), ('100', '$100'), ('1000', '$1000')], validators=[Optional()])
+    custom_amount = FloatField('Custom Amount (optional)', validators=[Optional(), NumberRange(min=0.01)])
+    submit = SubmitField('Add Balance')
+
+
+# forms.py
+
+class PayoutForm(FlaskForm):
+    nz_bank_account = StringField('NZ Bank Account', validators=[DataRequired()])
+    amount = FloatField('Amount', validators=[DataRequired()])
+    submit = SubmitField('Cash Out')
+
+    def validate_nz_bank_account(form, field):
+        pattern = r'^\d{2}-\d{4}-\d{7}-\d{2,3}$'
+        if not re.match(pattern, field.data):
+            raise ValidationError(
+                'Invalid NZ bank account number format. Please enter in the format BB-bbbb-AAAAAAA-SSS.')
 
 class AcceptTermsForm(FlaskForm):
     pass
+
+# forms.py
+
+
