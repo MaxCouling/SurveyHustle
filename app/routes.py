@@ -5,7 +5,7 @@ import os
 import io
 import csv
 
-from flask import render_template, redirect, url_for, flash, request, send_file
+from flask import render_template, redirect, url_for, flash, request, send_file, session
 
 from app import app, db
 from app.models import User, Survey, Question, Response, UserSurveyProgress
@@ -96,7 +96,7 @@ def profile():
         current_user.balance += 20
         db.session.commit()
         flash('Your balance has been updated.', 'success')
-        return redirect(url_for('profile'))
+
     return render_template('profile.html', user=current_user, form=form)
 
 @app.route('/survey')
@@ -390,6 +390,13 @@ def payment():
     return render_template('payment.html', form=form, user=current_user)
 
 
+
+
+
+# STRIPE
+import stripe
+
+stripe.api_key = app.config['STRIPE_SECRET_KEY']
 @app.route('/add_balance', methods=['GET', 'POST'])
 @login_required
 def add_balance():
@@ -404,9 +411,84 @@ def add_balance():
             amount = custom_amount
         else:
             amount = float(amount)
-        # For testing purposes, we'll just add the amount to the user's balance
-        current_user.balance += amount
-        db.session.commit()
-        flash(f'Added ${amount:.2f} to your balance.', 'success')
+        if amount <= 0:
+            flash('Amount must be greater than zero.', 'danger')
+            return redirect(url_for('add_balance'))
+
+        # Save the amount to session to use it after payment
+        session['top_up_amount'] = amount
+
+        # Redirect to create checkout session
+        return redirect(url_for('create_checkout_session'))
+    return render_template('add_balance.html', form=form)
+
+@app.route('/create-checkout-session', methods=['GET'])
+@login_required
+def create_checkout_session():
+    amount = session.get('top_up_amount')
+    if not amount:
+        flash('No amount specified for top-up.', 'danger')
+        return redirect(url_for('add_balance'))
+
+    # Convert amount to cents as Stripe expects amounts in the smallest currency unit
+    amount_cents = int(float(amount) * 100)
+
+    try:
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'nzd',
+                    'unit_amount': amount_cents,
+                    'product_data': {
+                        'name': 'Account Balance Top-up',
+                    },
+                },
+                'quantity': 1,
+            }],
+            mode='payment',
+            success_url=url_for('payment_success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
+            cancel_url=url_for('payment_cancel', _external=True),
+            metadata={
+                'user_id': current_user.id,
+                'top_up_amount': amount
+            }
+        )
+        return redirect(checkout_session.url)
+    except Exception as e:
+        flash(f'An error occurred while creating the checkout session: {str(e)}', 'danger')
+        return redirect(url_for('add_balance'))
+
+@ app.route('/success')
+@ login_required
+def payment_success():
+    session_id = request.args.get('session_id')
+    if not session_id:
+        flash('No session ID provided.', 'danger')
         return redirect(url_for('profile'))
-    return render_template('add_balance.html', form=form, user=current_user)
+
+    try:
+        # Retrieve the session from Stripe
+        checkout_session = stripe.checkout.Session.retrieve(session_id)
+        amount = checkout_session['metadata']['top_up_amount']
+        user_id = checkout_session['metadata']['user_id']
+    except Exception as e:
+        flash(f'Error retrieving payment information: {str(e)}', 'danger')
+        return redirect(url_for('profile'))
+
+    # Verify that the user ID matches the current user
+    if str(current_user.id) != user_id:
+        flash('User ID mismatch.', 'danger')
+        return redirect(url_for('profile'))
+
+    # Add the amount to the user's balance
+    current_user.balance += float(amount)
+    db.session.commit()
+    flash(f'Added ${amount} to your balance.', 'success')
+    return redirect(url_for('profile'))
+
+@app.route('/cancel')
+@login_required
+def payment_cancel():
+    flash('Payment canceled.', 'info')
+    return redirect(url_for('profile'))

@@ -24,6 +24,8 @@ app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USERNAME'] = 'support@surveyhustle.tech'  # Replace with your email
 app.config['MAIL_PASSWORD'] = EMAIL_PASSWORD     # Replace with your email password
+app.config['STRIPE_SECRET_KEY'] = os.getenv('STRIPE_SECRET_KEY')
+app.config['STRIPE_PUBLISHABLE_KEY'] = os.getenv('STRIPE_PUBLISHABLE_KEY')
 
 mail = Mail(app)
 from app import models, routes

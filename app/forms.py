@@ -38,8 +38,13 @@ class UploadSurveyForm(FlaskForm):
     submit = SubmitField('Upload Survey')
 
 
+# forms.py
+
 class AddBalanceForm(FlaskForm):
-    submit = SubmitField('Add $20')
+    amount = RadioField('Select Amount', choices=[('10', '$10'), ('100', '$100'), ('1000', '$1000')], validators=[DataRequired()])
+    custom_amount = FloatField('Custom Amount (optional)')
+    submit = SubmitField('Proceed to Payment')
+
 
 # forms.py
 
@@ -59,7 +64,4 @@ class AcceptTermsForm(FlaskForm):
 
 # forms.py
 
-class AddBalanceForm(FlaskForm):
-    amount = RadioField('Select Amount', choices=[('10', '$10'), ('100', '$100'), ('1000', '$1000')], validators=[DataRequired()])
-    custom_amount = FloatField('Custom Amount (optional)')
-    submit = SubmitField('Add Balance')
+
