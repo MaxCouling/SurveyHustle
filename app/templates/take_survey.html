@@ -8,10 +8,10 @@
     <h2 class="text-2xl font-bold mb-2">{{ survey.title }}</h2>
     <p class="mb-4">Question {{ progress.current_question_index + 1 }} of {{ total_questions }}</p>
 
-    <!-- Display user's current balance -->
+    <!-- Display user's current balance
     <div class="mb-3">
         <span class="font-semibold">Current Balance:</span> ${{ "%.2f" | format(current_user.balance) }}
-    </div>
+    </div>-->
 
     <!-- Display per-question payout -->
     <div class="mb-3">
@@ -33,11 +33,12 @@
 
             {% if form.answer.type == 'RadioField' %}
                 {% for subfield in form.answer %}
-                    <label class="label cursor-pointer">
+                    <label class="flex items-center mb-2 cursor-pointer">
                         {{ subfield(class="radio radio-primary") }}
-                        <span class="label-text ml-2">{{ subfield.label.text }}</span>
+                        <span class="ml-2">{{ subfield.label.text }}</span>
                     </label>
                 {% endfor %}
+
             {% else %}
                 {{ form.answer(class="input input-bordered") }}
             {% endif %}
