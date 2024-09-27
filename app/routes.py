@@ -11,7 +11,7 @@ from app import app, db
 from app.models import User, Survey, Question, Response, UserSurveyProgress
 
 
-from app.forms import RegistrationForm, LoginForm, UploadSurveyForm, AddBalanceForm, AcceptTermsForm
+from app.forms import RegistrationForm, LoginForm, UploadSurveyForm, AddBalanceForm, AcceptTermsForm, PayoutForm
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -22,6 +22,8 @@ from wtforms.validators import DataRequired, NumberRange
 
 import json
 
+from flask_mail import Message
+from app import mail
 @app.route('/', methods=['GET', 'POST'])
 def index():
     return render_template('index.html')
@@ -358,8 +360,31 @@ def export_responses(survey_id):
     )
 
 
+
+def send_payout_email(username, bank_account, amount):
+    msg = Message('Payout Request',
+                  sender='support@surveyhustle.tech',
+                  recipients=['support@surveyhustle.tech'])
+    msg.body = f'User {username} has requested a payout.\n' \
+               f'Bank Account: {bank_account}\n' \
+               f'Amount: ${amount:.2f}'
+    mail.send(msg)
+
 @app.route('/payment', methods=['GET', 'POST'])
 @login_required
 def payment():
-    # Handle payment logic here
-    return render_template('payment.html')
+    form = PayoutForm()
+    if form.validate_on_submit():
+        amount = form.amount.data
+        bank_account = form.nz_bank_account.data
+        if current_user.balance < amount:
+            flash('Insufficient balance.', 'danger')
+            return redirect(url_for('payment'))
+        # Send email to support
+        send_payout_email(current_user.username, bank_account, amount)
+        # Deduct amount from user's balance
+        current_user.balance -= amount
+        db.session.commit()
+        flash('Your payout request has been submitted.', 'success')
+        return redirect(url_for('profile'))
+    return render_template('payment.html', form=form)
