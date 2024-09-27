@@ -1,0 +1,17 @@
+{
+  "name": "surveyhustle",
+  "version": "1.0.0",
+  "description": "a group project developed in INFOMGMT 399",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:css": "npx tailwindcss -i ./app/static/css/tailwind.css -o ./app/static/css/output.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "daisyui": "^4.12.10",
+    "tailwindcss": "^3.4.13"
+  }
+}
