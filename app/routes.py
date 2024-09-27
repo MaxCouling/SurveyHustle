@@ -456,6 +456,7 @@ def create_checkout_session():
             mode='payment',
             success_url=url_for('payment_success', _external=True) + '?session_id={CHECKOUT_SESSION_ID}',
             cancel_url=url_for('payment_cancel', _external=True),
+            customer_email=current_user.email,
             metadata={
                 'user_id': current_user.id,
                 'top_up_amount': amount
