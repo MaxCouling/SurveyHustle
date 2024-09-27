@@ -10,7 +10,7 @@ class Config:
         # Replace 'postgres://' with 'postgresql://'
         DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
 
-    SQLALCHEMY_DATABASE_URI =  or \
+    SQLALCHEMY_DATABASE_URI = DATABASE_URL or \
         'sqlite:///' + os.path.join(basedir, 'app.db')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
