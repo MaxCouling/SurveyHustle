@@ -274,6 +274,11 @@ def take_survey(survey_id):
             question.question_text,
             validators=[DataRequired(), NumberRange(min=1, max=10)]
         ))
+    elif question.question_type == 'number':
+        setattr(DynamicSurveyForm, 'answer', IntegerField(
+            question.question_text,
+            validators=[DataRequired()]
+        ))
     else:
         flash('Unknown question type.', 'danger')
         return redirect(url_for('profile'))
