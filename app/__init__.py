@@ -29,5 +29,16 @@ app.config['MAIL_PASSWORD'] = EMAIL_PASSWORD     # Replace with your email passw
 app.config['STRIPE_SECRET_KEY'] = os.getenv('STRIPE_SECRET_KEY')
 app.config['STRIPE_PUBLISHABLE_KEY'] = os.getenv('STRIPE_PUBLISHABLE_KEY')
 
+import re
+from markupsafe import Markup
+
+def nl2br(value):
+    """Convert newlines to <br> tags."""
+    value = re.sub(r'\r\n|\r|\n', '<br>', value)
+    return Markup(value)
+
+# Register the filter with Jinja2
+app.jinja_env.filters['nl2br'] = nl2br
+
 mail = Mail(app)
 from app import models, routes

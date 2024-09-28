@@ -175,7 +175,7 @@ def upload_survey():
         if request.method == 'POST':
             flash('Please correct the errors below.', 'danger')
     return render_template('upload_survey.html', form=form)
-
+import re
 @app.route('/start_survey/<int:survey_id>', methods=['GET', 'POST'])
 @login_required
 def start_survey(survey_id):
@@ -192,6 +192,8 @@ def start_survey(survey_id):
         return redirect(url_for('take_survey', survey_id=survey.id))
     else:
         form = AcceptTermsForm()
+        survey_description = re.sub(r'\r', '<br>', survey.description)
+        survey_terms = re.sub(r'\r', '<br>', survey.terms_and_conditions)
         if request.method == 'POST':
             if 'accept' in request.form:
                 progress = UserSurveyProgress(user_id=current_user.id, survey_id=survey.id)
@@ -201,7 +203,7 @@ def start_survey(survey_id):
             else:
                 flash('You must accept the terms to proceed.', 'danger')
                 return redirect(url_for('explore'))
-        return render_template('survey_terms.html', survey=survey, form=form)
+        return render_template('survey_terms.html', survey=survey, form=form, description=survey_description, terms=survey_terms)
 
 
 
@@ -301,6 +303,9 @@ def take_survey(survey_id):
 
         # Update progress
         progress.current_question_index += 1
+
+        db.session.add(progress)
+        db.session.add(current_user)
 
         db.session.commit()
 
