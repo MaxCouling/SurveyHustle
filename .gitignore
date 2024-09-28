@@ -7,3 +7,4 @@ app.db
 .idea
 .env
 node_modules/
+__pycache__/

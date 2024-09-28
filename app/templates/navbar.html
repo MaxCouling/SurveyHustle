@@ -7,23 +7,13 @@
         {% if current_user.is_authenticated %}
             <!-- Display User Balance -->
             <div class="flex items-center">
-                <span class="text-base font-medium">Balance:</span>
+                <span class="text-base font-medium">{{current_user.username}}</span>
                 <span class="ml-2 badge badge-primary badge-lg">${{ "%.2f" | format(current_user.balance) }}</span>
             </div>
 
 
             <!-- User Avatar and Dropdown -->
-            <div class="dropdown dropdown-end">
-                <label tabindex="0" class="btn btn-ghost btn-circle avatar">
-                    <div class="w-10 rounded-full">
-                        <img src="{{ url_for('static', filename='images/default.jpeg') }}" />
-                    </div>
-                </label>
-                <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 p-2 shadow bg-base-100 rounded-box w-52">
-                    <li><a href="{{ url_for('profile') }}">Profile</a></li>
-                    <li><a href="{{ url_for('logout') }}">Logout</a></li>
-                </ul>
-            </div>
+
 
 
         {% endif %}
