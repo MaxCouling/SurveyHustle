@@ -1,44 +1,52 @@
-# __init__.py
 from flask import Flask
-from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
-from csrf import csrf
 from flask_mail import Mail
+from whitenoise import WhiteNoise
 from dotenv import load_dotenv
 import os
-from whitenoise import WhiteNoise
+
+db = SQLAlchemy()
+login = LoginManager()
+mail = Mail()
+
+from csrf import csrf
 
 load_dotenv()
-app = Flask(__name__)
-app.config.from_object(Config)
 
-db = SQLAlchemy(app)
-login = LoginManager(app)
-login.login_view = 'login'
-csrf.init_app(app)
-app.wsgi_app = WhiteNoise(app.wsgi_app, root='static/')
 
-EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
-# Configure email
-app.config['MAIL_SERVER'] = 'smtp.zoho.com.au'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'support@surveyhustle.tech'  # Replace with your email
-app.config['MAIL_PASSWORD'] = EMAIL_PASSWORD     # Replace with your email password
-app.config['STRIPE_SECRET_KEY'] = os.getenv('STRIPE_SECRET_KEY')
-app.config['STRIPE_PUBLISHABLE_KEY'] = os.getenv('STRIPE_PUBLISHABLE_KEY')
+def create_app(config_name):
+    # Create the Flask app
+    app = Flask(__name__)
 
-import re
-from markupsafe import Markup
+    # Load the configuration from the config class
+    app.config.from_object(f'config.{config_name.capitalize()}Config')
 
-def nl2br(value):
-    """Convert newlines to <br> tags."""
-    value = re.sub(r'\r\n|\r|\n', '<br>', value)
-    return Markup(value)
+    # Initialize extensions
+    db.init_app(app)
+    login.init_app(app)
+    login.login_view = 'login'
 
-# Register the filter with Jinja2
-app.jinja_env.filters['nl2br'] = nl2br
+    csrf.init_app(app)
 
-mail = Mail(app)
-from app import models, routes
+    # Initialize email
+    mail.init_app(app)
+
+    # Use WhiteNoise to serve static files in production
+    app.wsgi_app = WhiteNoise(app.wsgi_app, root='static/')
+
+    # Register the custom Jinja2 filter
+    import re
+    from markupsafe import Markup
+
+    def nl2br(value):
+        """Convert newlines to <br> tags."""
+        value = re.sub(r'\r\n|\r|\n', '<br>', value)
+        return Markup(value)
+
+    app.jinja_env.filters['nl2br'] = nl2br
+
+    # Import routes and models
+    from app import routes, models
+
+    return app
