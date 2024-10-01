@@ -20,11 +20,12 @@ csrf.init_app(app)
 app.wsgi_app = WhiteNoise(app.wsgi_app, root='static/')
 
 EMAIL_PASSWORD = os.environ.get("EMAIL_PASSWORD")
+EMAIL = os.environ.get("EMAIL")
 # Configure email
-app.config['MAIL_SERVER'] = 'smtp.zoho.com.au'
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
 app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USERNAME'] = 'support@surveyhustle.tech'  # Replace with your email
+app.config['MAIL_USERNAME'] = EMAIL # Replace with your email
 app.config['MAIL_PASSWORD'] = EMAIL_PASSWORD     # Replace with your email password
 app.config['STRIPE_SECRET_KEY'] = os.getenv('STRIPE_SECRET_KEY')
 app.config['STRIPE_PUBLISHABLE_KEY'] = os.getenv('STRIPE_PUBLISHABLE_KEY')

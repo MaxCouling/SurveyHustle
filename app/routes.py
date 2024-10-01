@@ -373,7 +373,7 @@ def export_responses(survey_id):
 
 def send_payout_email(username, bank_account, amount):
     msg = Message('Payout Request',
-                  sender='support@surveyhustle.tech',
+                  sender='surveyhustleinfomgmt399@gmail.com',
                   recipients=['support@surveyhustle.tech'])
     msg.body = f'User {username} has requested a payout.\n' \
                f'Bank Account: {bank_account}\n' \
