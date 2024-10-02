@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build:css": "npx tailwindcss -i ./app/static/css/tailwind.css -o ./app/static/css/output.css --watch",
+    "build": "npx tailwindcss -i ./app/static/css/tailwind.css -o ./app/static/css/output.css --watch",
      "heroku-postbuild": "npm run build"
   },
   "keywords": [],
