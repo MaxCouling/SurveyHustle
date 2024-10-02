@@ -11,7 +11,7 @@ from app import app, db
 from app.models import User, Survey, Question, Response, UserSurveyProgress
 
 
-from app.forms import RegistrationForm, LoginForm, UploadSurveyForm, AddBalanceForm, AcceptTermsForm, PayoutForm
+from app.forms import RegistrationForm, LoginForm, UploadSurveyForm, AddBalanceForm, AcceptTermsForm, PayoutForm,DeleteAccountForm
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -105,9 +105,10 @@ def survey():
     return render_template('survey.html')
 
 @app.route('/settings')
-#@login_required
+@login_required
 def settings():
-    return render_template('settings.html')
+    delete_form = DeleteAccountForm()
+    return render_template('settings.html', delete_form=delete_form)
 
 
 # routes.py
@@ -510,3 +511,47 @@ def payment_success():
 def payment_cancel():
     flash('Payment canceled.', 'info')
     return redirect(url_for('profile'))
+
+# routes.py
+@app.route('/delete_account', methods=['POST'])
+@login_required
+def delete_account():
+    form = DeleteAccountForm()
+    if form.validate_on_submit():
+        user = current_user
+        password = form.password.data
+
+        # Verify the password
+        if not check_password_hash(user.password, password):
+            flash('Incorrect password. Please try again.', 'danger')
+            return redirect(url_for('settings'))
+
+        # Delete user's responses
+        Response.query.filter_by(user_id=user.id).delete()
+
+        # Delete user's survey progress
+        UserSurveyProgress.query.filter_by(user_id=user.id).delete()
+
+        # Delete user's surveys and associated data
+        surveys = Survey.query.filter_by(owner_id=user.id).all()
+        for survey in surveys:
+            # Delete responses to survey questions
+            question_ids = [q.id for q in survey.questions]
+            Response.query.filter(Response.question_id.in_(question_ids)).delete()
+            # Delete survey questions
+            Question.query.filter_by(survey_id=survey.id).delete()
+            # Delete the survey
+            db.session.delete(survey)
+
+        # Delete the user
+        db.session.delete(user)
+        db.session.commit()
+
+        # Log out the user
+        logout_user()
+
+        flash('Your account has been deleted.', 'success')
+        return redirect(url_for('index'))
+    else:
+        flash('An error occurred. Please try again.', 'danger')
+        return redirect(url_for('settings'))

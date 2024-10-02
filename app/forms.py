@@ -62,6 +62,7 @@ class PayoutForm(FlaskForm):
 class AcceptTermsForm(FlaskForm):
     pass
 
-# forms.py
+class DeleteAccountForm(FlaskForm):
+    password = PasswordField('Password', validators=[DataRequired()])
 
 
