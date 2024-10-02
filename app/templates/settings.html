@@ -44,7 +44,6 @@
         <option value="winter">Winter</option>
     </select>
 </div>
-
 <script>
     // Theme Switcher Script
     const themeSwitcher = document.getElementById('theme-switcher');
@@ -62,4 +61,44 @@
         localStorage.setItem('theme', selectedTheme);
     });
 </script>
+<div class="mt-6">
+    <!-- Button to open the initial confirmation modal -->
+    <label for="initial-confirmation-modal" class="btn btn-error">Delete Account</label>
+</div>
+
+<!-- Initial Confirmation Modal -->
+<input type="checkbox" id="initial-confirmation-modal" class="modal-toggle" />
+<div class="modal">
+    <div class="modal-box">
+        <h3 class="font-bold text-lg">Confirm Account Deletion</h3>
+        <p class="py-4">Are you sure you want to delete your account? This action cannot be undone.</p>
+        <div class="modal-action">
+            <!-- Close the modal -->
+            <label for="initial-confirmation-modal" class="btn">Cancel</label>
+            <!-- Open the password entry modal -->
+            <label for="password-modal" class="btn btn-error">Yes, Delete My Account</label>
+        </div>
+    </div>
+</div>
+
+<!-- Password Entry Modal -->
+<input type="checkbox" id="password-modal" class="modal-toggle" />
+<div class="modal">
+    <div class="modal-box">
+        <h3 class="font-bold text-lg">Enter Your Password to Confirm</h3>
+        <!-- Delete Account Form -->
+        <form method="post" action="{{ url_for('delete_account') }}">
+            {{ delete_form.hidden_tag() }}
+            <div class="form-control">
+                {{ delete_form.password.label(class_='label') }}
+                {{ delete_form.password(class_='input input-bordered', required=True) }}
+            </div>
+            <div class="modal-action">
+                <!-- Close the modal -->
+                <label for="password-modal" class="btn">Cancel</label>
+                <button type="submit" class="btn btn-error">Confirm Delete</button>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}
