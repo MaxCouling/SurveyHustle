@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, FloatField, FileField, IntegerField, RadioField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, DecimalField, FileField, IntegerField, RadioField
 from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Optional, NumberRange
 from app.models import User
 import re
@@ -34,7 +34,7 @@ class UploadSurveyForm(FlaskForm):
     title = StringField('Survey Title', validators=[DataRequired()])
     description = TextAreaField('Description', validators=[DataRequired()])
     terms_and_conditions = TextAreaField('Terms and Conditions', validators=[DataRequired()])
-    total_payout = FloatField('Total Payout', validators=[DataRequired()])
+    total_payout = DecimalField('Total Payout', validators=[DataRequired()])
     desired_respondents = IntegerField('Number of Respondents', validators=[DataRequired()])
     csv_file = FileField('Survey Questions CSV', validators=[DataRequired()])
     submit = SubmitField('Upload Survey')
@@ -44,7 +44,7 @@ class UploadSurveyForm(FlaskForm):
 
 class AddBalanceForm(FlaskForm):
     amount = RadioField('Select Amount', choices=[('10', '$10'), ('100', '$100'), ('1000', '$1000')], validators=[Optional()])
-    custom_amount = FloatField('Custom Amount (optional)', validators=[Optional(), NumberRange(min=0.01)])
+    custom_amount = DecimalField('Custom Amount (optional)', validators=[Optional(), NumberRange(min=0.01)])
     submit = SubmitField('Add Balance')
 
 
@@ -52,7 +52,7 @@ class AddBalanceForm(FlaskForm):
 
 class PayoutForm(FlaskForm):
     nz_bank_account = StringField('NZ Bank Account', validators=[DataRequired()])
-    amount = FloatField('Amount', validators=[DataRequired()])
+    amount = DecimalField('Amount', validators=[DataRequired()])
     submit = SubmitField('Cash Out')
 
     def validate_nz_bank_account(form, field):
