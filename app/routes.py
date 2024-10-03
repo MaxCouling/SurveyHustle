@@ -1,5 +1,6 @@
 #routes.py
 from flask_wtf import FlaskForm
+from decimal import Decimal, ROUND_HALF_UP
 
 import os
 import io
@@ -92,10 +93,6 @@ def explore():
 @login_required
 def profile():
     form = AddBalanceForm()
-    if form.validate_on_submit():
-        current_user.balance += 20
-        db.session.commit()
-        flash('Your balance has been updated.', 'success')
 
     return render_template('profile.html', user=current_user, form=form)
 
@@ -126,7 +123,7 @@ def upload_survey():
         if current_user.balance < form.total_payout.data:
             flash('Insufficient balance to upload survey.', 'danger')
             return redirect(url_for('profile'))
-
+        total_payout = Decimal(str(form.total_payout.data)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
         # Deduct the total payout from the business user's balance
         current_user.balance -= form.total_payout.data
 
@@ -135,7 +132,7 @@ def upload_survey():
             title=form.title.data,
             description=form.description.data,
             terms_and_conditions=form.terms_and_conditions.data,
-            total_payout=form.total_payout.data,
+            total_payout=total_payout,
             desired_respondents=form.desired_respondents.data,
             owner=current_user
         )
@@ -165,8 +162,17 @@ def upload_survey():
         db.session.commit()
 
         # Calculate per-question payout
+        # Calculate per-question payout
         total_questions = survey.questions.count()
-        per_question_payout = survey.total_payout / (survey.desired_respondents * total_questions)
+        desired_respondents = survey.desired_respondents
+
+        # Ensure total_questions and desired_respondents are not zero to avoid division by zero
+        if total_questions == 0 or desired_respondents == 0:
+            flash('Survey must have at least one question and one desired respondent.', 'danger')
+            return redirect(url_for('profile'))
+
+        per_question_payout = (survey.total_payout / (desired_respondents * total_questions)).quantize(
+            Decimal('0.0001'), rounding=ROUND_HALF_UP)
         survey.per_question_payout = per_question_payout
         db.session.commit()
 
@@ -300,7 +306,10 @@ def take_survey(survey_id):
 
         # Add per-question payout to user's balance
         current_user.balance += survey.per_question_payout
+        current_user.balance = current_user.balance.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
         progress.payout += survey.per_question_payout
+        progress.payout = progress.payout.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
         # Update progress
         progress.current_question_index += 1
@@ -386,15 +395,19 @@ def send_payout_email(username, bank_account, amount):
 def payment():
     form = PayoutForm()
     if form.validate_on_submit():
-        amount = form.amount.data
+        amount = Decimal(str(form.amount.data)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
         bank_account = form.nz_bank_account.data
+
         if current_user.balance < amount:
             flash('Insufficient balance.', 'danger')
             return redirect(url_for('payment'))
+
         # Send email to support
         send_payout_email(current_user.username, bank_account, amount)
+
         # Deduct amount from user's balance
         current_user.balance -= amount
+        current_user.balance = current_user.balance.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
         db.session.commit()
         flash('Your payout request has been submitted.', 'success')
         return redirect(url_for('profile'))
@@ -419,16 +432,21 @@ def add_balance():
     if form.validate_on_submit():
         amount = None
         if form.custom_amount.data:
-            amount = form.custom_amount.data
+            amount = Decimal(str(form.custom_amount.data))
         elif form.amount.data:
-            amount = float(form.amount.data)
+            amount = Decimal(str(form.amount.data))
+        else:
+            amount = None
 
-        if amount is None or amount <= 0:
+        if amount is None or amount <= Decimal('0.00'):
             flash('Please select a valid amount.', 'danger')
             return redirect(url_for('add_balance'))
 
+        # Quantize the amount to 2 decimal places
+        amount = amount.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
         # Save the amount to session to use it after payment
-        session['top_up_amount'] = amount
+        session['top_up_amount'] = str(amount)
 
         # Redirect to create checkout session
         return redirect(url_for('create_checkout_session'))
@@ -443,13 +461,16 @@ def add_balance():
 @app.route('/create-checkout-session', methods=['GET'])
 @login_required
 def create_checkout_session():
-    amount = session.get('top_up_amount')
-    if not amount:
+    amount_str = session.get('top_up_amount')
+    if not amount_str:
         flash('No amount specified for top-up.', 'danger')
         return redirect(url_for('add_balance'))
 
-    # Convert amount to cents as Stripe expects amounts in the smallest currency unit
-    amount_cents = int(float(amount) * 100)
+    # Convert amount to Decimal
+    amount = Decimal(amount_str)
+
+    # Convert amount to cents (Stripe expects amounts in the smallest currency unit)
+    amount_cents = int((amount * 100).quantize(Decimal('1'), rounding=ROUND_HALF_UP))
 
     try:
         checkout_session = stripe.checkout.Session.create(
@@ -499,13 +520,15 @@ def payment_success():
     if str(current_user.id) != user_id:
         flash('User ID mismatch.', 'danger')
         return redirect(url_for('profile'))
+    # Convert amount to Decimal
+    amount_decimal = Decimal(amount)
 
     # Add the amount to the user's balance
-    current_user.balance += float(amount)
+    current_user.balance += amount_decimal
+    current_user.balance = current_user.balance.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
     db.session.commit()
-    flash(f'Added ${amount} to your balance.', 'success')
+    flash(f'Added ${amount_decimal} to your balance.', 'success')
     return redirect(url_for('profile'))
-
 @app.route('/cancel')
 @login_required
 def payment_cancel():

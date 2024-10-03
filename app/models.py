@@ -1,8 +1,9 @@
 # models.py
-
 from datetime import datetime
 from flask_login import UserMixin
 from app import db, login
+from sqlalchemy import Numeric
+from decimal import Decimal
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -13,7 +14,7 @@ class User(UserMixin, db.Model):
     surveys = db.relationship('Survey', backref='owner', lazy='dynamic')
     responses = db.relationship('Response', backref='user', lazy='dynamic')
     survey_progress = db.relationship('UserSurveyProgress', backref='user', lazy='dynamic')
-    balance = db.Column(db.Float, default=0.0)
+    balance = db.Column(Numeric(precision=10, scale=2), default=Decimal('0.00'))
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -27,10 +28,10 @@ class Survey(db.Model):
     title = db.Column(db.String(140))
     description = db.Column(db.Text)
     terms_and_conditions = db.Column(db.Text)
-    total_payout = db.Column(db.Float)
+    total_payout = db.Column(Numeric(precision=10, scale=2), default=Decimal('0.00'))
     desired_respondents = db.Column(db.Integer)
     current_respondents = db.Column(db.Integer, default=0)
-    per_question_payout = db.Column(db.Float)
+    per_question_payout = db.Column(Numeric(precision=10, scale=4), default=Decimal('0.0000'))
     active = db.Column(db.Boolean, default=True)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     questions = db.relationship('Question', backref='survey', lazy='dynamic')
@@ -66,7 +67,7 @@ class UserSurveyProgress(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     survey_id = db.Column(db.Integer, db.ForeignKey('survey.id'))
     current_question_index = db.Column(db.Integer, default=0)
-    payout = db.Column(db.Float, default=0.0)
+    payout = db.Column(Numeric(precision=10, scale=2), default=Decimal('0.00'))
     completed = db.Column(db.Boolean, default=False)
 
     def __repr__(self):

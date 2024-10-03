@@ -1,0 +1,7 @@
+question_text,question_type,choices
+"What is your age?",number,
+"How satisfied are you with our service? (Out of 10)",rating,
+"Did you know you can change SurveyHustle's theme in Settings?",multiple_choice,"[""Yes"", ""No""]"
+"Did you know you can exit the Survey at anytime, and come back to it at any time you feel?",multiple_choice,"[""Yes"", ""No""]"
+"Please provide additional feedback.",text,
+"How likely are you to recommend us to a friend?",multiple_choice,"[""Very Unlikely"", ""Unlikely"", ""Neutral"", ""Likely"", ""Very Likely""]"

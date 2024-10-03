@@ -42,4 +42,5 @@ def nl2br(value):
 app.jinja_env.filters['nl2br'] = nl2br
 
 mail = Mail(app)
+from sqlalchemy import Numeric
 from app import models, routes
