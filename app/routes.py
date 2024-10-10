@@ -12,7 +12,7 @@ from app import app, db
 from app.models import User, Survey, Question, Response, UserSurveyProgress
 
 
-from app.forms import RegistrationForm, LoginForm, UploadSurveyForm, AddBalanceForm, AcceptTermsForm, PayoutForm,DeleteAccountForm
+from app.forms import RegistrationForm, LoginForm, UploadSurveyForm, AddBalanceForm, AcceptTermsForm, PayoutForm, DeleteAccountForm, DataRequestForm
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -101,11 +101,12 @@ def profile():
 def survey():
     return render_template('survey.html')
 
-@app.route('/settings')
+@app.route('/settings', methods=['GET', 'POST'])
 @login_required
 def settings():
+    form = DataRequestForm()
     delete_form = DeleteAccountForm()
-    return render_template('settings.html', delete_form=delete_form)
+    return render_template('settings.html', delete_form=delete_form, form=form)
 
 
 # routes.py
@@ -123,7 +124,7 @@ def upload_survey():
         if current_user.balance < form.total_payout.data:
             flash('Insufficient balance to upload survey.', 'danger')
             return redirect(url_for('profile'))
-        total_payout = Decimal(str(form.total_payout.data)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        total_payout = Decimal(str(form.total_payout.data)).quantize(Decimal('0.01'))
         # Deduct the total payout from the business user's balance
         current_user.balance -= form.total_payout.data
 
@@ -172,7 +173,7 @@ def upload_survey():
             return redirect(url_for('profile'))
 
         per_question_payout = (survey.total_payout / (desired_respondents * total_questions)).quantize(
-            Decimal('0.0001'), rounding=ROUND_HALF_UP)
+            Decimal('0.0001'))
         survey.per_question_payout = per_question_payout
         db.session.commit()
 
@@ -306,10 +307,10 @@ def take_survey(survey_id):
 
         # Add per-question payout to user's balance
         current_user.balance += survey.per_question_payout
-        current_user.balance = current_user.balance.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        current_user.balance = current_user.balance.quantize(Decimal('0.01'))
 
         progress.payout += survey.per_question_payout
-        progress.payout = progress.payout.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        progress.payout = progress.payout.quantize(Decimal('0.01'))
 
         # Update progress
         progress.current_question_index += 1
@@ -395,7 +396,7 @@ def send_payout_email(username, bank_account, amount):
 def payment():
     form = PayoutForm()
     if form.validate_on_submit():
-        amount = Decimal(str(form.amount.data)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        amount = Decimal(str(form.amount.data)).quantize(Decimal('0.01'))
         bank_account = form.nz_bank_account.data
 
         if current_user.balance < amount:
@@ -407,7 +408,7 @@ def payment():
 
         # Deduct amount from user's balance
         current_user.balance -= amount
-        current_user.balance = current_user.balance.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        current_user.balance = current_user.balance.quantize(Decimal('0.01'))
         db.session.commit()
         flash('Your payout request has been submitted.', 'success')
         return redirect(url_for('profile'))
@@ -443,7 +444,7 @@ def add_balance():
             return redirect(url_for('add_balance'))
 
         # Quantize the amount to 2 decimal places
-        amount = amount.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        amount = amount.quantize(Decimal('0.01'))
 
         # Save the amount to session to use it after payment
         session['top_up_amount'] = str(amount)
@@ -470,7 +471,7 @@ def create_checkout_session():
     amount = Decimal(amount_str)
 
     # Convert amount to cents (Stripe expects amounts in the smallest currency unit)
-    amount_cents = int((amount * 100).quantize(Decimal('1'), rounding=ROUND_HALF_UP))
+    amount_cents = int((amount * 100).quantize(Decimal('1')))
 
     try:
         checkout_session = stripe.checkout.Session.create(
@@ -525,7 +526,7 @@ def payment_success():
 
     # Add the amount to the user's balance
     current_user.balance += amount_decimal
-    current_user.balance = current_user.balance.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+    current_user.balance = current_user.balance.quantize(Decimal('0.01'))
     db.session.commit()
     flash(f'Added ${amount_decimal} to your balance.', 'success')
     return redirect(url_for('profile'))
@@ -578,3 +579,30 @@ def delete_account():
     else:
         flash('An error occurred. Please try again.', 'danger')
         return redirect(url_for('settings'))
+@app.route('/request_data', methods=['GET', 'POST'])
+@login_required
+def request_data():
+    form = DataRequestForm()
+    if form.validate_on_submit():
+        user = User.query.get(current_user.id)
+        if user:
+            data_type = request.form.get('data_type', 'basic')
+            if data_type == 'all':
+                all = True
+            else:
+                all = False
+            user_data = user.get_all_data(all)
+
+            # Convert the user data to a readable format (e.g., JSON or plain text)
+            user_data_str = f"User Data:\n{str(user_data)}\n\n"
+
+            # Email logic
+            msg = Message("Your Data Request",
+                          sender="admin@yourdomain.com",
+                          recipients=[user.email])
+            msg.body = f"Here is the data we have for you:\n\n{user_data_str}"
+            mail.send(msg)
+
+            flash("An email with your data has been sent.", "success")
+            return redirect(url_for('settings'))  # Redirect to settings or another page
+    return render_template('request_data.html', form=form)

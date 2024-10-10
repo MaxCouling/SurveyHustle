@@ -67,4 +67,5 @@ class AcceptTermsForm(FlaskForm):
 class DeleteAccountForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
 
-
+class DataRequestForm(FlaskForm):
+    request_data = SubmitField('Request My Data')

@@ -61,6 +61,26 @@
         localStorage.setItem('theme', selectedTheme);
     });
 </script>
+<form action="{{ url_for('request_data') }}" method="POST" class="mt-6">
+    {{ form.hidden_tag() }}
+
+    <div class="mb-4">
+        <h3 class="font-semibold mb-2">Select Data Type</h3>
+        <br>
+        <div class="flex items-center">
+            <input type="radio" id="basic_data" name="data_type" value="basic" class="radio radio-primary" checked>
+            <label for="basic_data" class="ml-2">Basic Data</label>
+        </div>
+        <br>
+        <div class="flex items-center mt-2">
+            <input type="radio" id="all_data" name="data_type" value="all" class="radio radio-primary">
+            <label for="all_data" class="ml-2">All Data (includes survey responses)</label>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary w-full">Request My Data</button>
+</form>
+
 <div class="mt-6">
     <!-- Button to open the initial confirmation modal -->
     <label for="initial-confirmation-modal" class="btn btn-error">Delete Account</label>

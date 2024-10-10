@@ -19,6 +19,29 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return f'<User {self.username}>'
 
+    def get_all_data(self, all):
+        # Collect basic user info
+        data = {
+            "username": self.username,
+            "email": self.email,
+            "is_business": self.is_business,
+            "balance": str(self.balance)
+        }
+        if all:
+            # Collect survey info
+            data["surveys"] = [{"id": survey.id, "title": survey.title} for survey in self.surveys]
+
+            # Collect response info
+            data["responses"] = [{"question_id": response.question_id, "answer": response.answer} for response in
+                                 self.responses]
+
+            # Collect survey progress info
+            data["survey_progress"] = [{"survey_id": progress.survey_id, "progress": progress.current_question_index} for
+                                       progress in self.survey_progress]
+
+        return data
+
+
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
