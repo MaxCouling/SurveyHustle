@@ -4,7 +4,7 @@ from flask_login import UserMixin
 from app import db, login
 from sqlalchemy import Numeric, Enum
 from decimal import Decimal
-
+from sqlalchemy.dialects.postgresql import ENUM
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), unique=True, nullable=False)
@@ -50,7 +50,7 @@ class Survey(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(140))
     description = db.Column(db.Text)
-    privacy_level = db.Column(Enum('high', 'medium', 'low'), default='medium', nullable=False)  # Adding privacy level
+    privacy_level = db.Column(ENUM('high', 'medium', 'low'), default='medium', nullable=False)  # Adding privacy level
     terms_and_conditions = db.Column(db.Text)
     total_payout = db.Column(Numeric(precision=10, scale=2), default=Decimal('0.00'))
     desired_respondents = db.Column(db.Integer)
