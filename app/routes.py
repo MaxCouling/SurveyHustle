@@ -108,6 +108,10 @@ def dashboard():
 @app.route('/faq')
 def faq():
     return render_template('faq.html')
+
+@app.route('/privacy')
+def privacy():
+    return render_template('privacy.html')
 @app.route('/explore')
 def explore():
     privacy_level = request.args.get('privacy_level', 'All').lower()  # Convert to lowercase to match DB
