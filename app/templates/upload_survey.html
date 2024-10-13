@@ -14,6 +14,11 @@
         {{ form.description(class="textarea textarea-bordered") }}
     </div>
     <div class="form-control mb-4">
+    <!-- Correct form field rendering -->
+    {{ form.privacy_level.label(class="label font-semibold mb-2") }}
+    {{ form.privacy_level(class="select select-bordered w-full") }}
+</div>
+    <div class="form-control mb-4">
         {{ form.terms_and_conditions.label(class="label") }}
         {{ form.terms_and_conditions(class="textarea textarea-bordered") }}
     </div>

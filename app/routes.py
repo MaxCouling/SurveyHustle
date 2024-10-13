@@ -28,9 +28,31 @@ from app import mail
 @app.route('/', methods=['GET', 'POST'])
 def index():
     return render_template('index.html')
-
-#from forms import RegistrationForm
-
+import random
+import numpy as np
+from decimal import Decimal
+from flask import flash
+# LDP function to randomize numerical and multiple-choice responses based on privacy level
+def apply_ldp(response, privacy_level, question_type):
+    if question_type in ['rating', 'number']:
+        # Numerical data randomization using Laplace noise
+        if privacy_level == 'high':
+            return response + np.random.laplace(0, 3)  # Higher noise
+        elif privacy_level == 'medium':
+            return response + np.random.laplace(0, 1)  # Medium noise
+        else:
+            return response + np.random.laplace(0, 0.5)  # Lower noise
+    elif question_type == 'multiple_choice':
+        # Randomize multiple-choice responses based on privacy level
+        if privacy_level == 'high':
+            return random.choice(['Yes', 'No']) if random.random() < 0.2 else response  # 20% chance to randomize
+        elif privacy_level == 'medium':
+            return random.choice(['Yes', 'No']) if random.random() < 0.1 else response  # 10% chance to randomize
+        else:
+            return random.choice(['Yes', 'No']) if random.random() < 0.05 else response  # 5% chance to randomize
+    else:
+        # For text data, no randomization
+        return response
 # routes.py
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -83,11 +105,18 @@ def logout():
 def dashboard():
     return render_template('dashboard.html', user = current_user)
 
+
 @app.route('/explore')
-@login_required
 def explore():
-    surveys = Survey.query.filter_by(active=True).all()
-    return render_template('explore.html', surveys=surveys)
+    privacy_level = request.args.get('privacy_level', 'All').lower()  # Convert to lowercase to match DB
+
+    if privacy_level == 'all':
+        surveys = Survey.query.filter_by(active=True).all()
+    else:
+        surveys = Survey.query.filter_by(active=True, privacy_level=privacy_level).all()
+
+    return render_template('explore.html', surveys=surveys, selected_privacy_level=privacy_level)
+
 
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
@@ -132,6 +161,7 @@ def upload_survey():
         survey = Survey(
             title=form.title.data,
             description=form.description.data,
+            privacy_level=form.privacy_level.data,
             terms_and_conditions=form.terms_and_conditions.data,
             total_payout=total_payout,
             desired_respondents=form.desired_respondents.data,
@@ -297,11 +327,15 @@ def take_survey(survey_id):
 
     # Handle form submission
     if form.validate_on_submit():
-         # Save the response
+        privacy_level = survey.privacy_level
+        original_response = form.answer.data
+        randomized_response = apply_ldp(original_response, privacy_level, question.question_type)
+
+        # Save the response
         response = Response(
             user_id=current_user.id,
             question_id=question.id,
-            answer=form.answer.data
+            answer=randomized_response
         )
         db.session.add(response)
 
