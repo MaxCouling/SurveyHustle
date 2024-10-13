@@ -12,7 +12,7 @@ from app import app, db
 from app.models import User, Survey, Question, Response, UserSurveyProgress
 
 
-from app.forms import RegistrationForm, LoginForm, UploadSurveyForm, AddBalanceForm, AcceptTermsForm, PayoutForm,DeleteAccountForm
+from app.forms import RegistrationForm, LoginForm, UploadSurveyForm, AddBalanceForm, AcceptTermsForm, PayoutForm, DeleteAccountForm, DataRequestForm
 from flask_login import current_user, login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -28,9 +28,31 @@ from app import mail
 @app.route('/', methods=['GET', 'POST'])
 def index():
     return render_template('index.html')
-
-#from forms import RegistrationForm
-
+import random
+import numpy as np
+from decimal import Decimal
+from flask import flash
+# LDP function to randomize numerical and multiple-choice responses based on privacy level
+def apply_ldp(response, privacy_level, question_type):
+    if question_type in ['rating', 'number']:
+        # Numerical data randomization using Laplace noise
+        if privacy_level == 'high':
+            return response + np.random.laplace(0, 3)  # Higher noise
+        elif privacy_level == 'medium':
+            return response + np.random.laplace(0, 1)  # Medium noise
+        else:
+            return response + np.random.laplace(0, 0.5)  # Lower noise
+    elif question_type == 'multiple_choice':
+        # Randomize multiple-choice responses based on privacy level
+        if privacy_level == 'high':
+            return random.choice(['Yes', 'No']) if random.random() < 0.2 else response  # 20% chance to randomize
+        elif privacy_level == 'medium':
+            return random.choice(['Yes', 'No']) if random.random() < 0.1 else response  # 10% chance to randomize
+        else:
+            return random.choice(['Yes', 'No']) if random.random() < 0.05 else response  # 5% chance to randomize
+    else:
+        # For text data, no randomization
+        return response
 # routes.py
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -83,11 +105,24 @@ def logout():
 def dashboard():
     return render_template('dashboard.html', user = current_user)
 
+@app.route('/faq')
+def faq():
+    return render_template('faq.html')
+
+@app.route('/privacy')
+def privacy():
+    return render_template('privacy.html')
 @app.route('/explore')
-@login_required
 def explore():
-    surveys = Survey.query.filter_by(active=True).all()
-    return render_template('explore.html', surveys=surveys)
+    privacy_level = request.args.get('privacy_level', 'All').lower()  # Convert to lowercase to match DB
+
+    if privacy_level == 'all':
+        surveys = Survey.query.filter_by(active=True).all()
+    else:
+        surveys = Survey.query.filter_by(active=True, privacy_level=privacy_level).all()
+
+    return render_template('explore.html', surveys=surveys, selected_privacy_level=privacy_level)
+
 
 @app.route('/profile', methods=['GET', 'POST'])
 @login_required
@@ -101,11 +136,12 @@ def profile():
 def survey():
     return render_template('survey.html')
 
-@app.route('/settings')
+@app.route('/settings', methods=['GET', 'POST'])
 @login_required
 def settings():
+    form = DataRequestForm()
     delete_form = DeleteAccountForm()
-    return render_template('settings.html', delete_form=delete_form)
+    return render_template('settings.html', delete_form=delete_form, form=form)
 
 
 # routes.py
@@ -123,7 +159,7 @@ def upload_survey():
         if current_user.balance < form.total_payout.data:
             flash('Insufficient balance to upload survey.', 'danger')
             return redirect(url_for('profile'))
-        total_payout = Decimal(str(form.total_payout.data)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        total_payout = Decimal(str(form.total_payout.data)).quantize(Decimal('0.01'))
         # Deduct the total payout from the business user's balance
         current_user.balance -= form.total_payout.data
 
@@ -131,6 +167,7 @@ def upload_survey():
         survey = Survey(
             title=form.title.data,
             description=form.description.data,
+            privacy_level=form.privacy_level.data,
             terms_and_conditions=form.terms_and_conditions.data,
             total_payout=total_payout,
             desired_respondents=form.desired_respondents.data,
@@ -172,7 +209,7 @@ def upload_survey():
             return redirect(url_for('profile'))
 
         per_question_payout = (survey.total_payout / (desired_respondents * total_questions)).quantize(
-            Decimal('0.0001'), rounding=ROUND_HALF_UP)
+            Decimal('0.0001'))
         survey.per_question_payout = per_question_payout
         db.session.commit()
 
@@ -296,20 +333,24 @@ def take_survey(survey_id):
 
     # Handle form submission
     if form.validate_on_submit():
-         # Save the response
+        privacy_level = survey.privacy_level
+        original_response = form.answer.data
+        randomized_response = apply_ldp(original_response, privacy_level, question.question_type)
+
+        # Save the response
         response = Response(
             user_id=current_user.id,
             question_id=question.id,
-            answer=form.answer.data
+            answer=randomized_response
         )
         db.session.add(response)
 
         # Add per-question payout to user's balance
         current_user.balance += survey.per_question_payout
-        current_user.balance = current_user.balance.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        current_user.balance = current_user.balance.quantize(Decimal('0.01'))
 
         progress.payout += survey.per_question_payout
-        progress.payout = progress.payout.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        progress.payout = progress.payout.quantize(Decimal('0.01'))
 
         # Update progress
         progress.current_question_index += 1
@@ -382,8 +423,9 @@ def export_responses(survey_id):
 
 
 def send_payout_email(username, bank_account, amount):
+    from app import mail, EMAIL
     msg = Message('Payout Request',
-                  sender='surveyhustleinfomgmt399@gmail.com',
+                  sender=EMAIL,
                   recipients=['support@surveyhustle.tech'])
     msg.body = f'User {username} has requested a payout.\n' \
                f'Bank Account: {bank_account}\n' \
@@ -395,7 +437,7 @@ def send_payout_email(username, bank_account, amount):
 def payment():
     form = PayoutForm()
     if form.validate_on_submit():
-        amount = Decimal(str(form.amount.data)).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        amount = Decimal(str(form.amount.data)).quantize(Decimal('0.01'))
         bank_account = form.nz_bank_account.data
 
         if current_user.balance < amount:
@@ -407,7 +449,7 @@ def payment():
 
         # Deduct amount from user's balance
         current_user.balance -= amount
-        current_user.balance = current_user.balance.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        current_user.balance = current_user.balance.quantize(Decimal('0.01'))
         db.session.commit()
         flash('Your payout request has been submitted.', 'success')
         return redirect(url_for('profile'))
@@ -443,7 +485,7 @@ def add_balance():
             return redirect(url_for('add_balance'))
 
         # Quantize the amount to 2 decimal places
-        amount = amount.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        amount = amount.quantize(Decimal('0.01'))
 
         # Save the amount to session to use it after payment
         session['top_up_amount'] = str(amount)
@@ -470,7 +512,7 @@ def create_checkout_session():
     amount = Decimal(amount_str)
 
     # Convert amount to cents (Stripe expects amounts in the smallest currency unit)
-    amount_cents = int((amount * 100).quantize(Decimal('1'), rounding=ROUND_HALF_UP))
+    amount_cents = int((amount * 100).quantize(Decimal('1')))
 
     try:
         checkout_session = stripe.checkout.Session.create(
@@ -525,7 +567,7 @@ def payment_success():
 
     # Add the amount to the user's balance
     current_user.balance += amount_decimal
-    current_user.balance = current_user.balance.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+    current_user.balance = current_user.balance.quantize(Decimal('0.01'))
     db.session.commit()
     flash(f'Added ${amount_decimal} to your balance.', 'success')
     return redirect(url_for('profile'))
@@ -578,3 +620,30 @@ def delete_account():
     else:
         flash('An error occurred. Please try again.', 'danger')
         return redirect(url_for('settings'))
+@app.route('/request_data', methods=['GET', 'POST'])
+@login_required
+def request_data():
+    form = DataRequestForm()
+    if form.validate_on_submit():
+        user = User.query.get(current_user.id)
+        if user:
+            data_type = request.form.get('data_type', 'basic')
+            if data_type == 'all':
+                all = True
+            else:
+                all = False
+            user_data = user.get_all_data(all)
+
+            # Convert the user data to a readable format (e.g., JSON or plain text)
+            user_data_str = f"User Data:\n{str(user_data)}\n\n"
+
+            # Email logic
+            msg = Message("Your Data Request",
+                          sender="admin@yourdomain.com",
+                          recipients=[user.email])
+            msg.body = f"Here is the data we have for you:\n\n{user_data_str}"
+            mail.send(msg)
+
+            flash("An email with your data has been sent.", "success")
+            return redirect(url_for('settings'))  # Redirect to settings or another page
+    return render_template('request_data.html', form=form)

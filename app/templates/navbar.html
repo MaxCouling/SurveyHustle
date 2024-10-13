@@ -7,6 +7,7 @@
         {% if current_user.is_authenticated %}
             <!-- Display User Balance -->
             <div class="flex items-center">
+                <a class="btn btn-ghost normal-case text-sm" href="{{ url_for('faq') }}">FAQ</a>
                 <span class="text-base font-medium">{{current_user.username}}</span>
                 <span class="ml-2 badge badge-primary badge-lg">${{ "%.2f" | format(current_user.balance) }}</span>
             </div>

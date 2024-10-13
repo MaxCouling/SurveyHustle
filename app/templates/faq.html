@@ -1,0 +1,223 @@
+{% extends 'base.html' %}
+{% block title %}FAQ{% endblock %}
+{% block content %}
+
+<div class="container mx-auto py-8">
+    <h2 class="text-3xl font-bold text-center mb-6">Frequently Asked Questions (FAQ)</h2>
+
+    <div class="space-y-4">
+
+        <!-- Question 1 -->
+        <details class="bg-base-200 p-4 rounded-lg shadow-md">
+            <summary class="font-semibold text-lg">What is Local Differential Privacy (LDP)?</summary>
+            <div class="mt-2">
+                <p>Local Differential Privacy (LDP) is a privacy technique that adds random noise to your responses before they are sent to our servers. This ensures your data remains private, while still allowing businesses to gather meaningful insights.</p>
+            </div>
+        </details>
+
+        <!-- Question 2 -->
+        <details class="bg-base-200 p-4 rounded-lg shadow-md">
+            <summary class="font-semibold text-lg">How does Local Differential Privacy protect my data?</summary>
+            <div class="mt-2">
+                <p>With LDP, random noise is added to your answers, making it impossible to trace specific responses back to you. This ensures privacy at an individual level, while businesses can still analyze group data effectively.</p>
+            </div>
+        </details>
+
+        <!-- Question 3 -->
+        <details class="bg-base-200 p-4 rounded-lg shadow-md">
+            <summary class="font-semibold text-lg">Can businesses see my exact responses?</summary>
+            <div class="mt-2">
+                <p>No. Businesses receive only aggregated, privacy-preserving data. Thanks to LDP, even we can't see your exact answers after the noise has been applied.</p>
+            </div>
+        </details>
+
+        <!-- Question 4 -->
+        <details class="bg-base-200 p-4 rounded-lg shadow-md">
+            <summary class="font-semibold text-lg">What does it mean when a survey says it has 'High Privacy'?</summary>
+            <div class="mt-2">
+                <p>A "High Privacy" survey uses stronger privacy guarantees with more noise added to your data. This protects your privacy further but may result in more generalized insights for businesses.</p>
+            </div>
+        </details>
+
+        <!-- Question 5 -->
+        <details class="bg-base-200 p-4 rounded-lg shadow-md">
+            <summary class="font-semibold text-lg">How is my privacy different from regular anonymisation?</summary>
+            <div class="mt-2">
+                <p>Traditional anonymization may still allow for re-identification. LDP goes further by adding random noise, ensuring that even if someone had access to your answers, they wouldn't be able to identify you.</p>
+            </div>
+        </details>
+
+        <!-- Question 6 -->
+        <details class="bg-base-200 p-4 rounded-lg shadow-md">
+            <summary class="font-semibold text-lg">What types of data does Local Differential Privacy apply to?</summary>
+            <div class="mt-2">
+                <p>LDP applies to numerical, categorical, and binary data (e.g., age, ratings, and yes/no questions). For text-based responses, we use other measures to secure and anonymize your data.</p>
+            </div>
+        </details>
+
+        <!-- Question 7 -->
+        <details class="bg-base-200 p-4 rounded-lg shadow-md">
+            <summary class="font-semibold text-lg">Will noise make my answers inaccurate?</summary>
+            <div class="mt-2">
+                <p>While individual answers are slightly altered, the aggregated results remain accurate enough to provide valuable insights to businesses.</p>
+            </div>
+        </details>
+
+        <!-- Question 8 -->
+        <details class="bg-base-200 p-4 rounded-lg shadow-md">
+            <summary class="font-semibold text-lg">How do I know what privacy level a survey has?</summary>
+            <div class="mt-2">
+                <p>Before starting any survey, you will see the privacy level displayed clearly. This allows you to make an informed decision about whether to participate based on your comfort level.</p>
+            </div>
+        </details>
+
+        <!-- Question 9 -->
+        <details class="bg-base-200 p-4 rounded-lg shadow-md">
+            <summary class="font-semibold text-lg">What does 'epsilon' mean in privacy terms?</summary>
+            <div class="mt-2">
+                <p>Epsilon (ε) is a measure of the privacy guarantee. Lower epsilon values offer more privacy but add more noise, while higher values provide less privacy with more accurate data.</p>
+            </div>
+        </details>
+
+        <!-- Question 10 -->
+        <details class="bg-base-200 p-4 rounded-lg shadow-md">
+            <summary class="font-semibold text-lg">Can I opt-out of participating in surveys with lower privacy levels?</summary>
+            <div class="mt-2">
+                <p>Yes. You can choose to participate only in surveys with higher privacy levels. The privacy details are shown before you start each survey.</p>
+            </div>
+        </details>
+
+        <!-- Question 11 -->
+        <details class="bg-base-200 p-4 rounded-lg shadow-md">
+            <summary class="font-semibold text-lg">How does privacy impact the survey results businesses see?</summary>
+            <div class="mt-2">
+                <p>Businesses see group-level trends, not individual responses, allowing them to gain useful insights while maintaining your privacy.</p>
+            </div>
+        </details>
+
+        <!-- Question 12 -->
+        <details class="bg-base-200 p-4 rounded-lg shadow-md">
+            <summary class="font-semibold text-lg">Can I request to delete my data?</summary>
+            <div class="mt-2">
+                <p>Yes, you can request to delete your data. While your data is already anonymized through LDP, we will remove your participation from future aggregate results upon request.</p>
+            </div>
+        </details>
+
+        <!-- Question 13 -->
+        <details class="bg-base-200 p-4 rounded-lg shadow-md">
+            <summary class="font-semibold text-lg">Is Local Differential Privacy used by other companies?</summary>
+            <div class="mt-2">
+                <p>Yes, leading companies like Google and Apple use LDP to collect data while protecting user privacy. We use the same advanced privacy techniques on our platform.</p>
+            </div>
+        </details>
+
+        <!-- Question 14 -->
+        <details class="bg-base-200 p-4 rounded-lg shadow-md">
+            <summary class="font-semibold text-lg">How can I trust that my privacy is really being protected?</summary>
+            <div class="mt-2">
+                <p>We use proven privacy techniques backed by research and trusted by major companies. You can always view the privacy details of each survey before participating.</p>
+            </div>
+        </details>
+
+     <!-- Question 15: Differential Privacy Example -->
+<!-- Question 15: Differential Privacy Example -->
+<details class="bg-base-200 p-4 rounded-lg shadow-md">
+    <summary class="font-semibold text-lg">What is Differential Privacy? (For math nerds)</summary>
+    <div class="mt-2">
+        <p>Differential Privacy (DP) is a method to ensure that queries on a database do not reveal sensitive information about individual entries in the database. The formal definition of Differential Privacy is given as follows:</p>
+        <br>
+        <p><strong>Mathematical Formula:</strong></p>
+        <p><code>Pr[F(D) ∈ O] / Pr[F(D') ∈ O] ≤ e<sup>ε</sup></code></p>
+        <br>
+        <p>Where:</p>
+        <ul>
+            <li><strong>F</strong> is the function that processes the data.</li>
+            <li><strong>D</strong> and <strong>D'</strong> are neighboring datasets (differing by a single entry).</li>
+            <li><strong>O</strong> is the possible set of outputs.</li>
+            <li><strong>ε (epsilon)</strong> is the privacy loss parameter. A smaller value of ε indicates better privacy, while a larger value allows for more accurate results but with less privacy protection. For SurveyHustle, High privacy has a ε of 0.5, medium ε = 1, and for low privacy, ε = 2.</li>
+        </ul>
+        <br>
+        <p><strong>To achieve Differential Privacy for a query, we need to add randomized noise to the query result. This noise helps to obscure the contribution of individual entries in the dataset.</strong></p>
+        <br>
+        <p><strong>Calculating Noise:</strong></p>
+        <p>In the field of Differential Privacy, several mechanisms exist to calculate noise. For ε-DP, we commonly use the Laplace mechanism to generate the necessary noise:</p>
+        <br>
+        <p><code>F(D) = f(D) + Lap(Δf/ε)</code></p>
+        <br>
+        <p>Where:</p>
+        <ul>
+            <li><strong>Lap(Δf/ε)</strong> represents the noise drawn from a Laplace distribution with mean 0 and scale <code>Δf/ε</code>.</li>
+            <li><strong>Δf</strong> (sensitivity) is defined as the maximum change in the output of the query when a single entry is added or removed from the dataset. It can be calculated as:</li>
+        </ul>
+        <p><code>Δf = max |f(D) - f(D')|</code></p>
+        <br>
+        <p><strong>Example Dataset:</strong></p>
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Age</th>
+                <th>PTSD</th>
+            </tr>
+            <tr>
+                <td>Ann</td>
+                <td>21</td>
+                <td>1</td>
+            </tr>
+            <tr>
+                <td>David</td>
+                <td>16</td>
+                <td>0</td>
+            </tr>
+            <tr>
+                <td>Kate</td>
+                <td>35</td>
+                <td>1</td>
+            </tr>
+        </table>
+        <br>
+        <p>Let's say we want to count the number of individuals with PTSD = 1:</p>
+        <ul>
+            <li><strong>f(D)</strong> = 2 (Ann and Kate)</li>
+            <li><strong>f(D')</strong> = 1 (David)</li>
+        </ul>
+        <br>
+        <p>If we run this query multiple times:</p>
+        <ul>
+            <li>Probability of f(D) = 2: 10/10</li>
+            <li>Probability of f(D') = 2: 0/10</li>
+        </ul>
+        <br>
+        <p>Without DP, the differences in query results can reveal sensitive information. Differential Privacy ensures that even with similar datasets (D and D'), the probability of obtaining a specific query result does not differ significantly, protecting individual privacy.</p>
+        <br>
+        <p><strong>Sensitivity Calculation:</strong></p>
+        <p>For the example dataset:</p>
+        <p><code>Δf = max(0, 1, 1) = 1</code></p>
+        <p>The sensitivity of counting queries is always 1.</p>
+        <br>
+        <p><strong>Noise Addition Using the Laplace Mechanism:</strong></p>
+        <p>To calculate the noise, we draw from a Laplace distribution defined as:</p>
+        <br>
+        <p><code>Lap(x) = (1/(2b)) * e<sup>-|x - μ| / b</sup></code></p>
+        <p>Where:</p>
+        <ul>
+            <li><strong>x</strong> is a random real number.</li>
+            <li><strong>μ</strong> is the mean of the distribution (0 for DP).</li>
+            <li><strong>b</strong> is the scale of the noise distribution, defined as <code>b = Δf / ε</code>.</li>
+        </ul>
+        <br>
+        <p>This mechanism ensures that the output of the query remains close to the actual value while obscuring individual contributions through the added noise.</p>
+        <br>
+        <p><strong>Graphical Representation:</strong></p>
+        <p>Below is a suggested graph illustrating how differential privacy works. You can visualize the output distribution of a query with and without differential privacy:</p>
+
+        <img src="static/images/graph.png" alt="Differential Privacy Graph" class="w-full h-auto mt-4" />
+        <img src="static/images/graph2.png" alt="Differential Privacy Graph" class="w-full h-auto mt-4" />
+    </div>
+</details>
+
+
+
+    </div>
+</div>
+
+{% endblock %}

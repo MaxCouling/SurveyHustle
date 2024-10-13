@@ -1,28 +1,100 @@
-<!-- templates/explore.html -->
-
-{% extends 'base.html' %}
+{% extends "base.html" %}
 
 {% block title %}Explore Surveys{% endblock %}
 
 {% block content %}
-<h2 class="text-2xl font-bold mb-4">Explore Surveys</h2>
+<div class="container mx-auto py-8">
+    <h2 class="text-3xl font-bold mb-6 text-left">Explore Surveys</h2>
 
-{% if surveys %}
-    <div class="grid gap-4">
-        {% for survey in surveys %}
-            <div class="card bg-base-100 shadow-xl">
-                <div class="card-body">
-                    <h5 class="card-title text-xl font-semibold">{{ survey.title }}</h5>
-                    <p class="mb-4 whitespace-pre-wrap">{{ survey_description }}</p>
-                    <p class="text-sm text-gray-500 mb-4">
-                        Payout: ${{ "%.2f"|format(survey.total_payout / survey.desired_respondents) }}
-                    </p>
+    <!-- Privacy Level Filter Section -->
+    <div class="flex justify-left mb-6">
+        <button id="filterButton" class="btn btn-secondary">Filter by Privacy Level</button>
+    </div>
+
+    <!-- Privacy Filter Modal -->
+    <div id="privacyFilterModal" class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+
+            <!-- Modal content -->
+            <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:align-middle sm:max-w-lg sm:w-full">
+                <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                    <div class="sm:flex sm:items-start">
+                        <div class="text-center sm:mt-0 sm:ml-4 sm:text-left">
+                            <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">Select Privacy Level</h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-500">Choose the level of privacy you're comfortable with for participating in surveys.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                    <button id="allPrivacyBtn" class="btn btn-primary mb-3 w-full sm:ml-3 sm:w-auto sm:text-sm">All</button>
+                    <button id="highPrivacyBtn" class="btn btn-primary mb-3 w-full sm:ml-3 sm:w-auto sm:text-sm">High Privacy</button>
+                    <button id="medPrivacyBtn" class="btn btn-primary mb-3 w-full sm:ml-3 sm:w-auto sm:text-sm">Medium Privacy</button>
+                    <button id="lowPrivacyBtn" class="btn btn-primary mb-3 w-full sm:ml-3 sm:w-auto sm:text-sm">Low Privacy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Survey Cards Display -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% if surveys %}
+    {% for survey in surveys %}
+        {% if selected_privacy_level == 'all' or survey.privacy_level|lower == selected_privacy_level %}
+        <div class="card shadow-lg bg-base-200 hover:bg-base-300 transition-colors rounded-lg">
+            <div class="card-body">
+                <h3 class="card-title">{{ survey.title }}</h3>
+                <p>{{ survey.description }}</p>
+                <p class="text-sm text-gray-500 mb-4">
+                    Payout per respondent: ${{ "%.2f"|format(survey.total_payout / survey.desired_respondents) }}
+                </p>
+                <p class="text-sm text-white-700 mb-2">
+                    Privacy Level: <span class="font-bold">{{ survey.privacy_level }}</span>
+                </p>
+                <div class="card-actions mt-4">
                     <a href="{{ url_for('start_survey', survey_id=survey.id) }}" class="btn btn-primary">Take Survey</a>
                 </div>
             </div>
-        {% endfor %}
-    </div>
+        </div>
+        {% endif %}
+    {% endfor %}
 {% else %}
-    <p>No surveys available at the moment. Please check back later!</p>
+    <p class="text-left text-gray-500">No surveys available at the moment. Please check back later!</p>
 {% endif %}
+
+    </div>
+</div>
+
+<script>
+    // Generate URLs using Flask's url_for in the template
+    var allPrivacyUrl = "{{ url_for('explore', privacy_level='all') }}";
+    var highPrivacyUrl = "{{ url_for('explore', privacy_level='high') }}";
+    var medPrivacyUrl = "{{ url_for('explore', privacy_level='medium') }}";
+    var lowPrivacyUrl = "{{ url_for('explore', privacy_level='low') }}";
+
+    // JavaScript to toggle the modal
+    document.getElementById('filterButton').addEventListener('click', function() {
+        document.getElementById('privacyFilterModal').classList.toggle('hidden');
+    });
+
+    // Example to change the privacy level and redirect the user
+    document.getElementById('allPrivacyBtn').addEventListener('click', function() {
+        window.location.href = allPrivacyUrl;
+    });
+
+    document.getElementById('highPrivacyBtn').addEventListener('click', function() {
+        window.location.href = highPrivacyUrl;
+    });
+
+    document.getElementById('medPrivacyBtn').addEventListener('click', function() {
+        window.location.href = medPrivacyUrl;
+    });
+
+    document.getElementById('lowPrivacyBtn').addEventListener('click', function() {
+        window.location.href = lowPrivacyUrl;
+    });
+</script>
+
 {% endblock %}

@@ -2,7 +2,7 @@
 from datetime import datetime
 from flask_login import UserMixin
 from app import db, login
-from sqlalchemy import Numeric
+from sqlalchemy import Numeric, Enum
 from decimal import Decimal
 
 class User(UserMixin, db.Model):
@@ -19,6 +19,29 @@ class User(UserMixin, db.Model):
     def __repr__(self):
         return f'<User {self.username}>'
 
+    def get_all_data(self, all):
+        # Collect basic user info
+        data = {
+            "username": self.username,
+            "email": self.email,
+            "is_business": self.is_business,
+            "balance": str(self.balance)
+        }
+        if all:
+            # Collect survey info
+            data["surveys"] = [{"id": survey.id, "title": survey.title} for survey in self.surveys]
+
+            # Collect response info
+            data["responses"] = [{"question_id": response.question_id, "answer": response.answer} for response in
+                                 self.responses]
+
+            # Collect survey progress info
+            data["survey_progress"] = [{"survey_id": progress.survey_id, "progress": progress.current_question_index} for
+                                       progress in self.survey_progress]
+
+        return data
+
+
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
@@ -27,6 +50,7 @@ class Survey(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(140))
     description = db.Column(db.Text)
+    privacy_level = db.Column(Enum('high', 'medium', 'low'), default='medium', nullable=False)  # Adding privacy level
     terms_and_conditions = db.Column(db.Text)
     total_payout = db.Column(Numeric(precision=10, scale=2), default=Decimal('0.00'))
     desired_respondents = db.Column(db.Integer)

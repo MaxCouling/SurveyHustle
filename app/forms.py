@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, DecimalField, FileField, IntegerField, RadioField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, TextAreaField, DecimalField, FileField, IntegerField, RadioField, SelectField
 from wtforms.validators import DataRequired, Email, EqualTo, ValidationError, Optional, NumberRange
 from app.models import User
 import re
@@ -33,6 +33,7 @@ class LoginForm(FlaskForm):
 class UploadSurveyForm(FlaskForm):
     title = StringField('Survey Title', validators=[DataRequired()])
     description = TextAreaField('Description', validators=[DataRequired()])
+    privacy_level = SelectField('Privacy Level', choices=[('high', 'High'), ('medium', 'Medium'), ('low', 'Low')], validators=[DataRequired()])
     terms_and_conditions = TextAreaField('Terms and Conditions', validators=[DataRequired()])
     total_payout = DecimalField('Total Payout', validators=[DataRequired()])
     desired_respondents = IntegerField('Number of Respondents', validators=[DataRequired()])
@@ -67,4 +68,5 @@ class AcceptTermsForm(FlaskForm):
 class DeleteAccountForm(FlaskForm):
     password = PasswordField('Password', validators=[DataRequired()])
 
-
+class DataRequestForm(FlaskForm):
+    request_data = SubmitField('Request My Data')
