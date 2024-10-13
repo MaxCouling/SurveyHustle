@@ -119,15 +119,39 @@
             </div>
         </details>
 
-        <!-- Question 15: Differential Privacy Example -->
+     <!-- Question 15: Differential Privacy Example -->
+<!-- Question 15: Differential Privacy Example -->
 <details class="bg-base-200 p-4 rounded-lg shadow-md">
-    <summary class="font-semibold text-lg">What is Differential Privacy?</summary>
+    <summary class="font-semibold text-lg">What is Differential Privacy? (For math nerds)</summary>
     <div class="mt-2">
-        <p>Differential Privacy (DP) is a method to ensure that queries on a database do not reveal sensitive information about individual entries in the database. Here's an example to illustrate how it works:</p>
-
-        <p>Consider a dataset with information on individuals' age and PTSD status:</p>
-
-        <p><strong>Without Differential Privacy:</strong></p>
+        <p>Differential Privacy (DP) is a method to ensure that queries on a database do not reveal sensitive information about individual entries in the database. The formal definition of Differential Privacy is given as follows:</p>
+        <br>
+        <p><strong>Mathematical Formula:</strong></p>
+        <p><code>Pr[F(D) ∈ O] / Pr[F(D') ∈ O] ≤ e<sup>ε</sup></code></p>
+        <br>
+        <p>Where:</p>
+        <ul>
+            <li><strong>F</strong> is the function that processes the data.</li>
+            <li><strong>D</strong> and <strong>D'</strong> are neighboring datasets (differing by a single entry).</li>
+            <li><strong>O</strong> is the possible set of outputs.</li>
+            <li><strong>ε (epsilon)</strong> is the privacy loss parameter. A smaller value of ε indicates better privacy, while a larger value allows for more accurate results but with less privacy protection. For SurveyHustle, High privacy has a ε of 0.5, medium ε = 1, and for low privacy, ε = 2.</li>
+        </ul>
+        <br>
+        <p><strong>To achieve Differential Privacy for a query, we need to add randomized noise to the query result. This noise helps to obscure the contribution of individual entries in the dataset.</strong></p>
+        <br>
+        <p><strong>Calculating Noise:</strong></p>
+        <p>In the field of Differential Privacy, several mechanisms exist to calculate noise. For ε-DP, we commonly use the Laplace mechanism to generate the necessary noise:</p>
+        <br>
+        <p><code>F(D) = f(D) + Lap(Δf/ε)</code></p>
+        <br>
+        <p>Where:</p>
+        <ul>
+            <li><strong>Lap(Δf/ε)</strong> represents the noise drawn from a Laplace distribution with mean 0 and scale <code>Δf/ε</code>.</li>
+            <li><strong>Δf</strong> (sensitivity) is defined as the maximum change in the output of the query when a single entry is added or removed from the dataset. It can be calculated as:</li>
+        </ul>
+        <p><code>Δf = max |f(D) - f(D')|</code></p>
+        <br>
+        <p><strong>Example Dataset:</strong></p>
         <table>
             <tr>
                 <th>Name</th>
@@ -150,22 +174,48 @@
                 <td>1</td>
             </tr>
         </table>
-
+        <br>
         <p>Let's say we want to count the number of individuals with PTSD = 1:</p>
         <ul>
-            <li>f(D) = 2 (Ann and Kate)</li>
-            <li>f(D') = 1 (David)</li>
+            <li><strong>f(D)</strong> = 2 (Ann and Kate)</li>
+            <li><strong>f(D')</strong> = 1 (David)</li>
         </ul>
-
+        <br>
         <p>If we run this query multiple times:</p>
         <ul>
             <li>Probability of f(D) = 2: 10/10</li>
             <li>Probability of f(D') = 2: 0/10</li>
         </ul>
-
+        <br>
         <p>Without DP, the differences in query results can reveal sensitive information. Differential Privacy ensures that even with similar datasets (D and D'), the probability of obtaining a specific query result does not differ significantly, protecting individual privacy.</p>
+        <br>
+        <p><strong>Sensitivity Calculation:</strong></p>
+        <p>For the example dataset:</p>
+        <p><code>Δf = max(0, 1, 1) = 1</code></p>
+        <p>The sensitivity of counting queries is always 1.</p>
+        <br>
+        <p><strong>Noise Addition Using the Laplace Mechanism:</strong></p>
+        <p>To calculate the noise, we draw from a Laplace distribution defined as:</p>
+        <br>
+        <p><code>Lap(x) = (1/(2b)) * e<sup>-|x - μ| / b</sup></code></p>
+        <p>Where:</p>
+        <ul>
+            <li><strong>x</strong> is a random real number.</li>
+            <li><strong>μ</strong> is the mean of the distribution (0 for DP).</li>
+            <li><strong>b</strong> is the scale of the noise distribution, defined as <code>b = Δf / ε</code>.</li>
+        </ul>
+        <br>
+        <p>This mechanism ensures that the output of the query remains close to the actual value while obscuring individual contributions through the added noise.</p>
+        <br>
+        <p><strong>Graphical Representation:</strong></p>
+        <p>Below is a suggested graph illustrating how differential privacy works. You can visualize the output distribution of a query with and without differential privacy:</p>
+
+        <img src="static/images/graph.png" alt="Differential Privacy Graph" class="w-full h-auto mt-4" />
+        <img src="static/images/graph2.png" alt="Differential Privacy Graph" class="w-full h-auto mt-4" />
     </div>
 </details>
+
+
 
     </div>
 </div>
