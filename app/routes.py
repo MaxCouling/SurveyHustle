@@ -105,7 +105,9 @@ def logout():
 def dashboard():
     return render_template('dashboard.html', user = current_user)
 
-
+@app.route('/faq')
+def faq():
+    return render_template('faq.html')
 @app.route('/explore')
 def explore():
     privacy_level = request.args.get('privacy_level', 'All').lower()  # Convert to lowercase to match DB
@@ -417,8 +419,9 @@ def export_responses(survey_id):
 
 
 def send_payout_email(username, bank_account, amount):
+    from app import mail, EMAIL
     msg = Message('Payout Request',
-                  sender='surveyhustleinfomgmt399@gmail.com',
+                  sender=EMAIL,
                   recipients=['support@surveyhustle.tech'])
     msg.body = f'User {username} has requested a payout.\n' \
                f'Bank Account: {bank_account}\n' \
