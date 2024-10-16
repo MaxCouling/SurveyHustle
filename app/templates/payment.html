@@ -16,9 +16,9 @@
 <form method="post">
     {{ form.hidden_tag() }}
     <div class="mb-4">
-        {{ form.nz_bank_account.label(class="block text-gray-700") }}
+        {{ form.nz_bank_account.label(class="block text-white-700") }}
         {{ form.nz_bank_account(class="mt-1 block w-full", placeholder="BB-bbbb-AAAAAAA-SSS") }}
-        <small class="text-gray-500">Format: BB-bbbb-AAAAAAA-SSS</small>
+        <small class="text-white-500">Format: BB-bbbb-AAAAAAA-SSS</small>
         {% if form.nz_bank_account.errors %}
             <div class="text-red-500 text-sm">
                 {{ form.nz_bank_account.errors[0] }}
@@ -26,7 +26,7 @@
         {% endif %}
     </div>
     <div class="mb-4">
-        {{ form.amount.label(class="block text-gray-700") }}
+        {{ form.amount.label(class="block text-white-700") }}
         {{ form.amount(class="mt-1 block w-full") }}
         {% if form.amount.errors %}
             <div class="text-red-500 text-sm">
