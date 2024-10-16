@@ -108,7 +108,7 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('profile'))
+        return redirect(url_for('explore'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
@@ -116,7 +116,7 @@ def login():
             login_user(user)
             flash('Logged in successfully.', 'success')
             next_page = request.args.get('next')
-            return redirect(next_page) if next_page else redirect(url_for('profile'))
+            return redirect(next_page) if next_page else redirect(url_for('explore'))
         else:
             flash('Invalid username or password.', 'danger')
     return render_template('login.html', form=form)
