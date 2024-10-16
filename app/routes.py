@@ -28,28 +28,54 @@ from app import mail
 @app.route('/', methods=['GET', 'POST'])
 def index():
     return render_template('index.html')
+
+
 import random
 import numpy as np
-from decimal import Decimal
-from flask import flash
-# LDP function to randomize numerical and multiple-choice responses based on privacy level
-def apply_ldp(response, privacy_level, question_type):
+from app.models import Question
+
+import random
+import numpy as np
+from app.models import Question
+
+import random
+import numpy as np
+from app.models import Question
+
+
+def apply_ldp(response, privacy_level, question_id):
+    question = Question.query.get(question_id)
+    if question is None:
+        print(f"Error: Question with id {question_id} not found")
+        return response
+
+    question_type = question.question_type
+
     if question_type in ['rating', 'number']:
-        # Numerical data randomization using Laplace noise
-        if privacy_level == 'high':
-            return response + np.random.laplace(0, 3)  # Higher noise
-        elif privacy_level == 'medium':
-            return response + np.random.laplace(0, 1)  # Medium noise
-        else:
-            return response + np.random.laplace(0, 0.5)  # Lower noise
+        try:
+            response = float(response)
+            if privacy_level == 'high':
+                return max(min(response + np.random.laplace(0, 1.5), 10),
+                           0)  # Increased noise, clamped between 0 and 10
+            elif privacy_level == 'medium':
+                return max(min(response + np.random.laplace(0, 1), 10), 0)
+            else:
+                return max(min(response + np.random.laplace(0, 0.5), 10), 0)
+        except ValueError:
+            print(f"Error: Could not convert response '{response}' to float for question {question_id}")
+            return response
     elif question_type == 'multiple_choice':
-        # Randomize multiple-choice responses based on privacy level
+        choices = question.choices.split(',') if question.choices else []
+        if not choices:
+            print(f"Error: No choices found for multiple choice question {question_id}")
+            return response
+
         if privacy_level == 'high':
-            return random.choice(['Yes', 'No']) if random.random() < 0.2 else response  # 20% chance to randomize
+            return random.choice(choices) if random.random() < 0.3 else response  # 30% chance to randomise
         elif privacy_level == 'medium':
-            return random.choice(['Yes', 'No']) if random.random() < 0.1 else response  # 10% chance to randomize
+            return random.choice(choices) if random.random() < 0.2 else response  # 20% chance to randomise
         else:
-            return random.choice(['Yes', 'No']) if random.random() < 0.05 else response  # 5% chance to randomize
+            return random.choice(choices) if random.random() < 0.1 else response  # 10% chance to randomise
     else:
         # For text data, no randomization
         return response
@@ -335,7 +361,13 @@ def take_survey(survey_id):
     if form.validate_on_submit():
         privacy_level = survey.privacy_level
         original_response = form.answer.data
-        randomized_response = apply_ldp(original_response, privacy_level, question.question_type)
+        randomized_response = apply_ldp(original_response, privacy_level, question.id)
+
+        # Convert randomized_response to string for storage
+        if isinstance(randomized_response, (int, float)):
+            randomized_response = f"{randomized_response:.2f}"
+        else:
+            randomized_response = str(randomized_response)
 
         # Save the response
         response = Response(
