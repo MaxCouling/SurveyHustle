@@ -679,3 +679,8 @@ def request_data():
             flash("An email with your data has been sent.", "success")
             return redirect(url_for('settings'))  # Redirect to settings or another page
     return render_template('request_data.html', form=form)
+
+
+@app.route('/survey-upload-guide')
+def survey_upload_guide():
+    return render_template('survey_upload_guide.html')
