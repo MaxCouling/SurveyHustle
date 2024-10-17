@@ -453,9 +453,9 @@ def export_responses(survey_id):
     )
 
 
-
+from app import mail, EMAIL
 def send_payout_email(username, bank_account, amount):
-    from app import mail, EMAIL
+
     msg = Message('Payout Request',
                   sender=EMAIL,
                   recipients=['support@surveyhustle.tech'])
@@ -671,7 +671,7 @@ def request_data():
 
             # Email logic
             msg = Message("Your Data Request",
-                          sender="admin@yourdomain.com",
+                          sender=EMAIL,
                           recipients=[user.email])
             msg.body = f"Here is the data we have for you:\n\n{user_data_str}"
             mail.send(msg)
