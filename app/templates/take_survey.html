@@ -61,4 +61,10 @@
         </button>
     </form>
 </div>
+<script>
+document.querySelector('form').addEventListener('submit', function(e) {
+    // Disable the submit button
+    document.querySelector('button[type="submit"]').disabled = true;
+});
+</script>
 {% endblock %}
