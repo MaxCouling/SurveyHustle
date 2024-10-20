@@ -460,7 +460,7 @@ def send_payout_email(username, bank_account, amount):
                   recipients=['support@surveyhustle.tech'])
     msg.body = f'User {username} has requested a payout.\n' \
                f'Bank Account: {bank_account}\n' \
-               f'Amount: ${amount:.2f}'
+               f'Amount: ${amount/100:.2f}'
     mail.send(msg)
 
 @app.route('/payment', methods=['GET', 'POST'])
