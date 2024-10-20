@@ -48,7 +48,7 @@
                 <h3 class="card-title">{{ survey.title }}</h3>
                 <p>{{ survey.description }}</p>
                 <p class="text-sm text-gray-500 mb-4">
-                    Payout per respondent: ${{ "%.2f"|format(survey.total_payout / survey.desired_respondents) }}
+                    Estimated payout per respondent: ${{ "%.2f"|format(survey.per_question_payout * survey.questions.count() / 100) }}
                 </p>
                 <p class="text-sm text-white-700 mb-2">
                     Privacy Level: <span class="font-bold">{{ survey.privacy_level }}</span>
