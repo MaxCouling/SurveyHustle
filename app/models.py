@@ -14,7 +14,7 @@ class User(UserMixin, db.Model):
     surveys = db.relationship('Survey', backref='owner', lazy='dynamic')
     responses = db.relationship('Response', backref='user', lazy='dynamic')
     survey_progress = db.relationship('UserSurveyProgress', backref='user', lazy='dynamic')
-    balance = db.Column(Numeric(precision=10, scale=2), default=Decimal('0.00'))
+    balance = db.Column(db.Integer, default=0)
 
     def __repr__(self):
         return f'<User {self.username}>'
@@ -52,10 +52,10 @@ class Survey(db.Model):
     description = db.Column(db.Text)
     privacy_level = db.Column(ENUM('high', 'medium', 'low', name='privacy_enum'), default='medium', nullable=False)  # Using PostgreSQL ENUM
     terms_and_conditions = db.Column(db.Text)
-    total_payout = db.Column(Numeric(precision=10, scale=2), default=Decimal('0.00'))
+    total_payout = db.Column(db.Integer, default=0)
     desired_respondents = db.Column(db.Integer)
     current_respondents = db.Column(db.Integer, default=0)
-    per_question_payout = db.Column(Numeric(precision=10, scale=4), default=Decimal('0.0000'))
+    per_question_payout = db.Column(db.Integer, default=0)
     active = db.Column(db.Boolean, default=True)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     questions = db.relationship('Question', backref='survey', lazy='dynamic')
@@ -91,7 +91,7 @@ class UserSurveyProgress(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     survey_id = db.Column(db.Integer, db.ForeignKey('survey.id'))
     current_question_index = db.Column(db.Integer, default=0)
-    payout = db.Column(Numeric(precision=10, scale=2), default=Decimal('0.00'))
+    payout = db.Column(db.Integer, default=0)
     completed = db.Column(db.Boolean, default=False)
 
     def __repr__(self):

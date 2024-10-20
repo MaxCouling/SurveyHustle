@@ -55,12 +55,12 @@ def apply_ldp(response, privacy_level, question_id):
         try:
             response = float(response)
             if privacy_level == 'high':
-                return max(min(response + np.random.laplace(0, 1.5), 10),
+                return max(min(response + np.random.laplace(0, 0.5), 10),
                            0)  # Increased noise, clamped between 0 and 10
             elif privacy_level == 'medium':
                 return max(min(response + np.random.laplace(0, 1), 10), 0)
             else:
-                return max(min(response + np.random.laplace(0, 0.5), 10), 0)
+                return max(min(response + np.random.laplace(0, 2), 10), 0)
         except ValueError:
             print(f"Error: Could not convert response '{response}' to float for question {question_id}")
             return response
@@ -182,12 +182,12 @@ def upload_survey():
     form = UploadSurveyForm()
     if form.validate_on_submit():
         # Check if the user has enough balance
-        if current_user.balance < form.total_payout.data:
+        total_payout_cents = int(form.total_payout.data * 100)
+        if current_user.balance < total_payout_cents:
             flash('Insufficient balance to upload survey.', 'danger')
             return redirect(url_for('profile'))
-        total_payout = Decimal(str(form.total_payout.data)).quantize(Decimal('0.01'))
-        # Deduct the total payout from the business user's balance
-        current_user.balance -= form.total_payout.data
+
+        current_user.balance -= total_payout_cents
 
         # Create the survey
         survey = Survey(
@@ -195,7 +195,7 @@ def upload_survey():
             description=form.description.data,
             privacy_level=form.privacy_level.data,
             terms_and_conditions=form.terms_and_conditions.data,
-            total_payout=total_payout,
+            total_payout=total_payout_cents,
             desired_respondents=form.desired_respondents.data,
             owner=current_user
         )
@@ -234,8 +234,7 @@ def upload_survey():
             flash('Survey must have at least one question and one desired respondent.', 'danger')
             return redirect(url_for('profile'))
 
-        per_question_payout = (survey.total_payout / (desired_respondents * total_questions)).quantize(
-            Decimal('0.0001'))
+        per_question_payout = survey.total_payout // (desired_respondents * total_questions)
         survey.per_question_payout = per_question_payout
         db.session.commit()
 
@@ -379,10 +378,10 @@ def take_survey(survey_id):
 
         # Add per-question payout to user's balance
         current_user.balance += survey.per_question_payout
-        current_user.balance = current_user.balance.quantize(Decimal('0.01'))
+
 
         progress.payout += survey.per_question_payout
-        progress.payout = progress.payout.quantize(Decimal('0.01'))
+
 
         # Update progress
         progress.current_question_index += 1
@@ -469,7 +468,7 @@ def send_payout_email(username, bank_account, amount):
 def payment():
     form = PayoutForm()
     if form.validate_on_submit():
-        amount = Decimal(str(form.amount.data)).quantize(Decimal('0.01'))
+        amount = int(form.amount.data * 100)
         bank_account = form.nz_bank_account.data
 
         if current_user.balance < amount:
@@ -481,7 +480,6 @@ def payment():
 
         # Deduct amount from user's balance
         current_user.balance -= amount
-        current_user.balance = current_user.balance.quantize(Decimal('0.01'))
         db.session.commit()
         flash('Your payout request has been submitted.', 'success')
         return redirect(url_for('profile'))
@@ -498,53 +496,26 @@ stripe.api_key = app.config['STRIPE_SECRET_KEY']
 @app.route('/add_balance', methods=['GET', 'POST'])
 @login_required
 def add_balance():
-    if not current_user.is_business:
-        flash('You must be a business user to add balance.', 'danger')
-        return redirect(url_for('profile'))
-
     form = AddBalanceForm()
     if form.validate_on_submit():
-        amount = None
-        if form.custom_amount.data:
-            amount = Decimal(str(form.custom_amount.data))
-        elif form.amount.data:
-            amount = Decimal(str(form.amount.data))
-        else:
-            amount = None
+        amount = form.custom_amount.data if form.custom_amount.data else float(form.amount.data)
 
-        if amount is None or amount <= Decimal('0.00'):
+        if amount <= 0:
             flash('Please select a valid amount.', 'danger')
             return redirect(url_for('add_balance'))
 
-        # Quantize the amount to 2 decimal places
-        amount = amount.quantize(Decimal('0.01'))
-
-        # Save the amount to session to use it after payment
-        session['top_up_amount'] = str(amount)
-
-        # Redirect to create checkout session
+        amount_cents = int(amount * 100)
+        session['top_up_amount'] = amount_cents
         return redirect(url_for('create_checkout_session'))
-    else:
-        print("Form validation failed")
-        print(form.errors)
-        print("Request form data:", request.form)
     return render_template('add_balance.html', form=form)
-
-
 
 @app.route('/create-checkout-session', methods=['GET'])
 @login_required
 def create_checkout_session():
-    amount_str = session.get('top_up_amount')
-    if not amount_str:
+    amount_cents = session.get('top_up_amount')
+    if not amount_cents:
         flash('No amount specified for top-up.', 'danger')
         return redirect(url_for('add_balance'))
-
-    # Convert amount to Decimal
-    amount = Decimal(amount_str)
-
-    # Convert amount to cents (Stripe expects amounts in the smallest currency unit)
-    amount_cents = int((amount * 100).quantize(Decimal('1')))
 
     try:
         checkout_session = stripe.checkout.Session.create(
@@ -565,7 +536,7 @@ def create_checkout_session():
             customer_email=current_user.email,
             metadata={
                 'user_id': current_user.id,
-                'top_up_amount': amount
+                'top_up_amount': amount_cents
             }
         )
         return redirect(checkout_session.url)
@@ -573,8 +544,8 @@ def create_checkout_session():
         flash(f'An error occurred while creating the checkout session: {str(e)}', 'danger')
         return redirect(url_for('add_balance'))
 
-@ app.route('/success')
-@ login_required
+@app.route('/success')
+@login_required
 def payment_success():
     session_id = request.args.get('session_id')
     if not session_id:
@@ -582,26 +553,20 @@ def payment_success():
         return redirect(url_for('profile'))
 
     try:
-        # Retrieve the session from Stripe
         checkout_session = stripe.checkout.Session.retrieve(session_id)
-        amount = checkout_session['metadata']['top_up_amount']
+        amount_cents = int(checkout_session['metadata']['top_up_amount'])
         user_id = checkout_session['metadata']['user_id']
     except Exception as e:
         flash(f'Error retrieving payment information: {str(e)}', 'danger')
         return redirect(url_for('profile'))
 
-    # Verify that the user ID matches the current user
     if str(current_user.id) != user_id:
         flash('User ID mismatch.', 'danger')
         return redirect(url_for('profile'))
-    # Convert amount to Decimal
-    amount_decimal = Decimal(amount)
 
-    # Add the amount to the user's balance
-    current_user.balance += amount_decimal
-    current_user.balance = current_user.balance.quantize(Decimal('0.01'))
+    current_user.balance += amount_cents
     db.session.commit()
-    flash(f'Added ${amount_decimal} to your balance.', 'success')
+    flash(f'Added ${amount_cents / 100:.2f} to your balance.', 'success')
     return redirect(url_for('profile'))
 @app.route('/cancel')
 @login_required

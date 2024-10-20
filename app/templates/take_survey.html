@@ -15,12 +15,12 @@
 
     <!-- Display per-question payout -->
     <div class="mb-3">
-        <span class="font-semibold">You earn:</span> ${{ "%.4f" | format(survey.per_question_payout) }} per question
+        <span class="font-semibold">You earn:</span> ${{ "%.2f" | format(survey.per_question_payout / 100) }} per question
     </div>
 
     <!-- Display total earned from this survey -->
     <div class="mb-3">
-        <span class="font-semibold">Total Earned from this Survey:</span> ${{ "%.2f" | format(progress.payout) }}
+        <span class="font-semibold">Total Earned from this Survey:</span> ${{ "%.2f" | format(progress.payout / 100) }}
     </div>
 
     <form method="POST" action="{{ url_for('take_survey', survey_id=survey.id) }}">
