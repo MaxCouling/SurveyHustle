@@ -7,9 +7,39 @@
 <div class="text-center py-10">
     <h1 class="text-5xl font-bold mb-6">Welcome to SurveyHustle</h1>
     <p class="text-lg mb-8">Claim Control, Claim Rewards.</p>
-    <div class="flex justify-center space-x-4">
+
+    <div class="flex justify-center space-x-4 mb-8">
         <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Get Started</a>
         <a href="{{ url_for('login') }}" class="btn btn-secondary btn-lg">Log In</a>
     </div>
+    <br>
+    <p class="text-lg mb-4">Watch our video to learn more:</p>
+
+    <!-- Video container with responsive styling -->
+    <div class="video-container">
+        <iframe width="560" height="315" src="https://www.youtube.com/embed/WS30QAxWFFs?rel=0&autoplay=1"
+            title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>
 </div>
+
+<!-- Custom CSS to center and improve video styling -->
+<style>
+    .video-container {
+        position: relative;
+        padding-bottom: 56.25%; /* 16:9 aspect ratio */
+        height: 0;
+        overflow: hidden;
+        max-width: 100%;
+        background-color: #000;
+    }
+
+    .video-container iframe {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+    }
+</style>
 {% endblock %}
