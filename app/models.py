@@ -25,7 +25,7 @@ class User(UserMixin, db.Model):
             "username": self.username,
             "email": self.email,
             "is_business": self.is_business,
-            "balance": str(self.balance)
+            "balance": str(self.balance/ 100)
         }
         if all:
             # Collect survey info
