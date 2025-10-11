@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  surveyhustle:
+    build: .
+    container_name: surveyhustle
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=app
+      - FLASK_ENV=production
+      - SECRET_KEY=${SECRET_KEY}
+      - DATABASE_URL=sqlite:////data/app.db
+    volumes:
+      - ./data:/data
+    networks:
+      - surveyhustle_network
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: surveyhustle_cloudflared
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    networks:
+      - surveyhustle_network
+    depends_on:
+      - surveyhustle
+
+networks:
+  surveyhustle_network:
+    driver: bridge
+
+volumes:
+  data:
