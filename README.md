@@ -1,8 +1,90 @@
 # SurveyHustle SurveyHustle
 a group project developed in INFOMGMT 399
-Live at [surveyhustle.tech](https://surveyhustle.tech)
+Live at [survey.maxcouling.com](https://survey.maxcouling.com)
 
-Installation
+## Docker Deployment (Production - Recommended)
+
+Run SurveyHustle in a Docker container with Cloudflare Tunnel on any server (including Raspberry Pi).
+
+#### Prerequisites
+
+- Docker and Docker Compose
+- Cloudflare account with a domain
+- Git
+
+#### Quick Start
+
+1. **Clone the Repository**
+
+```bash
+git clone https://github.com/MaxCouling/SurveyHustle
+cd SurveyHustle
+```
+
+2. **Create Environment File**
+
+```bash
+cp .env.example .env
+nano .env
+```
+
+Add your configuration:
+
+```bash
+# Generate a secure secret key
+SECRET_KEY=$(python3 -c 'import secrets; print(secrets.token_hex(32))')
+
+# Get your Cloudflare Tunnel token from:
+# https://one.dash.cloudflare.com/ -> Networks -> Tunnels
+TUNNEL_TOKEN=your-cloudflare-tunnel-token-here
+```
+
+3. **Set Up Cloudflare Tunnel**
+
+- Go to [Cloudflare Zero Trust Dashboard](https://one.dash.cloudflare.com/)
+- Navigate to **Networks** → **Tunnels** → **Create a tunnel**
+- Name your tunnel (e.g., "surveyhustle")
+- Copy the tunnel token
+- Configure Public Hostname:
+  - **Subdomain**: your choice (e.g., `survey`)
+  - **Domain**: your domain
+  - **Service**: `http://surveyhustle:5000`
+
+4. **Deploy**
+
+```bash
+docker-compose up -d
+```
+
+5. **Check Logs**
+
+```bash
+docker-compose logs -f
+```
+
+6. **Access Your Application**
+
+Visit your configured domain (e.g., `https://survey.yourdomain.com`)
+
+#### Managing the Application
+
+```bash
+# Stop the application
+docker-compose down
+
+# Restart the application
+docker-compose restart
+
+# View logs
+docker-compose logs -f surveyhustle
+
+# Rebuild after code changes
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+---
+Local Installation
 ------------
 
 Follow these steps to set up the project on your local machine:
